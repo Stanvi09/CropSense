@@ -1,0 +1,3471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CropSense – Plant Health Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-950: #0d2010;
+  --green-900: #1a3d1f;
+  --green-800: #1e5c24;
+  --green-700: #2d7a35;
+  --green-600: #38a347;
+  --green-500: #4bc05b;
+  --green-400: #74d082;
+  --green-200: #bbefbf;
+  --green-100: #ddf4df;
+  --green-50:  #f0faf1;
+  --amber-500: #f59e0b;
+  --amber-100: #fef3c7;
+  --amber-50:  #fffbeb;
+  --blue-500:  #3b82f6;
+  --blue-100:  #dbeafe;
+  --blue-50:   #eff6ff;
+  --red-500:   #ef4444;
+  --red-100:   #fee2e2;
+  --purple-500:#8b5cf6;
+  --purple-100:#ede9fe;
+  --bg:        #f5f9f5;
+  --surface:   #ffffff;
+  --border:    #e2eddf;
+  --border-strong: #c9dfc5;
+  --text-primary:  #0d2010;
+  --text-secondary:#4a6f4f;
+  --text-muted:    #7fa880;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-sm: 0 1px 3px rgba(13,32,16,0.06), 0 1px 2px rgba(13,32,16,0.04);
+  --shadow-md: 0 4px 12px rgba(13,32,16,0.08), 0 2px 4px rgba(13,32,16,0.05);
+  --shadow-lg: 0 12px 32px rgba(13,32,16,0.10), 0 4px 8px rgba(13,32,16,0.06);
+  --font-ui: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { overflow-x: hidden; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse 600px 400px at 90% -5%, rgba(75,192,91,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 5% 95%, rgba(56,163,71,0.07) 0%, transparent 70%);
+}
+
+body.lang-hi { font-family: 'Noto Sans Devanagari', var(--font-ui), sans-serif; }
+body.lang-kn { font-family: 'Noto Sans Kannada', var(--font-ui), sans-serif; }
+body.lang-ta { font-family: 'Noto Sans Tamil', var(--font-ui), sans-serif; }
+body.lang-te { font-family: 'Noto Sans Telugu', var(--font-ui), sans-serif; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  background: var(--green-950);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 58px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  width: 100%;
+  overflow: hidden;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.brand-icon {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--green-600), var(--green-400));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(75,192,91,0.4);
+}
+
+.topbar-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+
+.topbar-nav {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.topbar-nav button {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.topbar-nav button:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+.topbar-nav button.active { background: rgba(75,192,91,0.2); color: var(--green-400); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ─── LANG SWITCHER ─── */
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.lang-btn:hover { color: rgba(255,255,255,0.8); }
+.lang-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
+
+.conn-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--green-400);
+  padding: 4px 10px;
+  background: rgba(75,192,91,0.12);
+  border: 1px solid rgba(75,192,91,0.2);
+  border-radius: 20px;
+}
+
+.conn-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-400);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.farmer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+.farmer-avatar {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--green-700), var(--green-500));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem;
+}
+
+/* ─── PAGES ─── */
+.page { display: none; }
+.page.active { display: block; }
+
+.container {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  width: 100%;
+}
+
+/* ─── HERO ─── */
+.hero {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-800) 60%, var(--green-700) 100%);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  flex-wrap: wrap;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.hero::after {
+  content: '🌾';
+  position: absolute;
+  right: 220px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  font-size: 5rem;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.hero-text { position: relative; z-index: 1; }
+
+.hero-text h1 {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 5px;
+}
+
+.hero-text p {
+  font-size: 0.87rem;
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  min-width: 80px;
+}
+
+.hero-stat .val {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.hero-stat .lbl {
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+/* ─── SECTION HEADER ─── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.section-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--green-100);
+  color: var(--green-700);
+}
+
+/* ─── PLANT SELECTOR ─── */
+.plant-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.plant-tabs::-webkit-scrollbar { display: none; }
+
+.plant-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.plant-tab:hover { border-color: var(--green-500); color: var(--green-700); }
+.plant-tab.active {
+  background: var(--green-900);
+  border-color: var(--green-900);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13,32,16,0.2);
+}
+
+/* ─── CARD ─── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.card-body { padding: 20px; }
+
+/* ─── SENSOR GRID ─── */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.sensor-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.sensor-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.sensor-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.sensor-card.moisture::before { background: linear-gradient(90deg, var(--blue-500), #60b8f5); }
+.sensor-card.temp::before    { background: linear-gradient(90deg, #f97316, var(--amber-500)); }
+.sensor-card.light::before   { background: linear-gradient(90deg, var(--amber-500), #fde047); }
+.sensor-card.humidity::before { background: linear-gradient(90deg, var(--purple-500), #a78bfa); }
+
+.sensor-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+.moisture .sensor-icon-wrap { background: var(--blue-100); }
+.temp     .sensor-icon-wrap { background: #fee7d6; }
+.light    .sensor-icon-wrap { background: var(--amber-100); }
+.humidity .sensor-icon-wrap { background: var(--purple-100); }
+
+.sensor-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.sensor-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.sensor-value span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+.sensor-bar-track {
+  background: #f0f4f0;
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.sensor-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.moisture .sensor-bar { background: linear-gradient(90deg, var(--blue-500), #60b8f5); }
+.temp     .sensor-bar { background: linear-gradient(90deg, #f97316, var(--amber-500)); }
+.light    .sensor-bar { background: linear-gradient(90deg, var(--amber-500), #fde047); }
+.humidity .sensor-bar { background: linear-gradient(90deg, var(--purple-500), #a78bfa); }
+
+.sensor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.pill-ok     { background: var(--green-100); color: var(--green-700); }
+.pill-warn   { background: #fee2e2; color: #dc2626; }
+.pill-amber  { background: var(--amber-100); color: #b45309; }
+.pill-info   { background: var(--blue-100); color: #2563eb; }
+.pill-purple { background: var(--purple-100); color: #6d28d9; }
+
+/* ─── MIDDLE GRID ─── */
+.mid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* ─── STRESS CARD ─── */
+.stress-inner { padding: 20px; }
+.stress-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.stress-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.stress-badge.green { background: var(--green-100); color: var(--green-700); }
+.stress-badge.amber { background: var(--amber-100); color: #b45309; }
+
+.stress-label {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.stress-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; }
+
+.stress-classes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.stress-class {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.stress-class.active {
+  border-color: var(--green-500);
+  background: var(--green-50);
+  color: var(--green-800);
+}
+.stress-class:hover:not(.active) { border-color: var(--border-strong); }
+
+.offline-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+/* ─── ABSORPTION CARD ─── */
+.absorption-inner { padding: 20px; }
+
+.absorption-svg-wrap {
+  width: 100%;
+  height: 110px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.absorption-svg-wrap svg { width: 100%; height: 100%; }
+
+.absorption-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.absorption-stat { font-size: 0.8rem; }
+.absorption-stat strong { display: block; font-weight: 700; color: var(--text-primary); }
+.absorption-stat small { color: var(--text-muted); font-weight: 500; }
+.absorption-gain {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--blue-500);
+}
+
+/* ─── AI CARD ─── */
+.ai-card-wrap { margin-bottom: 20px; }
+
+.ai-inner { padding: 24px; }
+
+.ai-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ai-title-block h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.ai-title-block p { font-size: 0.74rem; color: var(--text-muted); font-weight: 500; }
+
+.ai-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--green-900);
+  color: var(--green-400);
+  border: 1px solid rgba(75,192,91,0.2);
+  flex-shrink: 0;
+}
+.ai-live-chip::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-400);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.ai-output {
+  background: var(--green-50);
+  border: 1.5px solid var(--green-200);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+  min-height: 80px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--green-500);
+}
+
+.ai-placeholder-text { color: var(--text-muted); font-size: 0.88rem; }
+
+.ai-loading-block { padding: 8px 0 16px; }
+.ai-loading-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--green-200);
+  border-top-color: var(--green-600);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg-text { font-size: 0.84rem; color: var(--text-muted); font-weight: 500; }
+
+.shimmer-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--green-100) 25%, var(--green-200) 50%, var(--green-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  margin-bottom: 8px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ai-error {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--red-100);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--red-500);
+  border: 1px solid #fca5a5;
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--green-800);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(30,92,36,0.25);
+}
+.btn-primary:hover:not(:disabled) { background: var(--green-900); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(30,92,36,0.3); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--green-50); border-color: var(--green-500); color: var(--green-700); }
+
+/* ─── ALERTS ─── */
+.alerts-stack { display: flex; flex-direction: column; gap: 8px; }
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-left-width: 3px;
+  box-shadow: var(--shadow-sm);
+}
+.alert-item.type-warn  { border-left-color: var(--red-500); }
+.alert-item.type-good  { border-left-color: var(--green-500); }
+.alert-item.type-info  { border-left-color: var(--blue-500); }
+
+.alert-emoji { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.alert-content { flex: 1; min-width: 0; }
+.alert-content strong { font-size: 0.84rem; font-weight: 700; display: block; margin-bottom: 2px; }
+.alert-content p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+.alert-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+/* ─── LOG PAGE ─── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: span 2; }
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-control {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  width: 100%;
+}
+.form-control:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(56,163,71,0.1); }
+
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+.outcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+.outcome-btn {
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.outcome-btn:hover { border-color: var(--green-500); color: var(--green-700); }
+.outcome-btn.selected {
+  background: var(--green-900);
+  color: #fff;
+  border-color: var(--green-900);
+}
+
+.photo-drop {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  text-align: center;
+  background: var(--green-50);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.photo-drop:hover { border-color: var(--green-500); background: var(--green-100); }
+.photo-drop input { display: none; }
+.photo-drop-icon { font-size: 2rem; margin-bottom: 8px; }
+.photo-drop-text { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+
+.weather-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.weather-option { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.86rem; font-weight: 600; color: var(--text-secondary); }
+.weather-option input { accent-color: var(--green-600); }
+
+.submit-row { padding-top: 6px; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.submit-btn-full {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--green-800);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(30,92,36,0.25);
+}
+.submit-btn-full:hover { background: var(--green-900); transform: translateY(-1px); }
+.form-note { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-weight: 500; }
+
+/* ─── HISTORY ─── */
+.history-table-wrap { overflow-x: auto; }
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  min-width: 600px;
+}
+.history-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--bg);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  border-bottom: 1.5px solid var(--border);
+}
+.history-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: var(--green-50); }
+
+.tag {
+  display: inline-flex;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.tag-amber { background: var(--amber-100); color: #b45309; }
+.tag-green { background: var(--green-100); color: var(--green-700); }
+.tag-blue  { background: var(--blue-100); color: #1d4ed8; }
+.tag-red   { background: var(--red-100); color: #b91c1c; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-card .big-num {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+/* ─── LIVE BADGE (history) ─── */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green-700);
+  padding: 4px 10px 4px 8px;
+  background: var(--green-100);
+  border: 1px solid var(--green-200);
+  border-radius: 20px;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-600);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ─── TREND CHART ─── */
+.trend-card { padding: 20px 20px 8px; }
+.trend-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.trend-head-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.02rem;
+  color: var(--text-primary);
+}
+.trend-head-sub { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+.trend-svg-wrap { width: 100%; }
+.trend-svg-wrap svg { width: 100%; height: auto; display: block; }
+.trend-point { cursor: pointer; }
+.trend-point:hover circle { r: 6; }
+.trend-tooltip {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  fill: var(--text-secondary);
+  font-weight: 700;
+}
+.trend-axis-label {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  fill: var(--text-muted);
+  font-weight: 600;
+}
+.trend-empty {
+  text-align: center;
+  padding: 34px 16px 26px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.trend-empty-cta {
+  margin-top: 10px;
+}
+
+/* ─── PHOTO COMPARE ─── */
+.photo-compare-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.photo-compare-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  text-align: center;
+}
+.photo-compare-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+  margin-bottom: 8px;
+  background: var(--green-100);
+}
+.photo-compare-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+.photo-compare-tag.before { background: var(--amber-100); color: #92400e; }
+.photo-compare-tag.after  { background: var(--green-100); color: var(--green-700); }
+.photo-compare-date { font-size: 0.74rem; color: var(--text-muted); font-weight: 600; }
+.photo-compare-arrow {
+  font-size: 1.4rem;
+  color: var(--green-500);
+  flex-shrink: 0;
+}
+.photo-strip {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.photo-strip-item { flex-shrink: 0; text-align: center; }
+.photo-strip-item img {
+  width: 52px; height: 52px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  display: block;
+}
+.photo-strip-item span {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-top: 3px;
+}
+.photo-empty {
+  text-align: center;
+  padding: 20px 16px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 100%;
+}
+.history-empty-row td {
+  text-align: center;
+  padding: 32px 16px !important;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ─── COST ─── */
+.cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.cost-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cost-item:last-of-type { border-bottom: none; }
+.cost-item-name { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
+.cost-item-qty { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.cost-item-price {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green-700);
+}
+
+.cost-total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--green-800);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  margin-top: 14px;
+}
+.cost-total-bar .label { font-size: 0.85rem; font-weight: 700; }
+.cost-total-bar .amount {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.budget-summary {
+  grid-column: span 2;
+  background: linear-gradient(135deg, var(--green-50), #f0faf1);
+  border: 1.5px solid var(--green-200);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+}
+.budget-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.budget-summary-top h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.budget-summary-top p { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+.budget-big {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--green-700);
+}
+.budget-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--green-950);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 999;
+  max-width: 280px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ─── MOBILE NAV ─── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--green-950);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 0 env(safe-area-inset-bottom);
+  z-index: 200;
+  justify-content: space-around;
+}
+.mobile-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 4px 16px;
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+.mobile-nav-btn .mnav-icon { font-size: 1.25rem; line-height: 1; }
+.mobile-nav-btn.active { color: var(--green-400); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .sensor-grid { grid-template-columns: 1fr 1fr; }
+  .mid-grid { grid-template-columns: 1fr 1fr; }
+  .cost-grid { grid-template-columns: 1fr; }
+  .budget-summary { grid-column: span 1; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .topbar { padding: 0 14px; gap: 8px; }
+  .topbar-nav { display: none; }
+  .conn-badge span { display: none; }
+  .farmer-badge span:last-child { display: none; }
+  .mobile-nav { display: flex; }
+  .container { padding: 16px 14px 90px; }
+  .hero { padding: 20px; flex-direction: column; align-items: flex-start; }
+  .hero::after { display: none; }
+  .hero-stats { align-self: stretch; }
+  .hero-stat { flex: 1; }
+  .sensor-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mid-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: span 1; }
+  .outcome-grid { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .cost-grid { grid-template-columns: 1fr; }
+  .budget-summary { grid-column: span 1; }
+  .lang-switcher { display: none; }
+  .topbar-right { gap: 6px; }
+}
+
+@media (max-width: 400px) {
+  .stats-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">🌿</div>
+    <span>CropSense</span>
+  </div>
+  <div class="topbar-divider"></div>
+  <nav class="topbar-nav">
+    <button class="active" onclick="showPage('dashboard')" data-i18n="nav_home">🏠 Dashboard</button>
+    <button onclick="showPage('log')" data-i18n="nav_log">📝 Log Outcome</button>
+    <button onclick="showPage('history')" data-i18n="nav_history">📊 History</button>
+    <button onclick="showPage('cost')" data-i18n="nav_cost">💰 Cost</button>
+  </nav>
+  <div class="topbar-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('hi')">हि</button>
+      <button class="lang-btn" onclick="setLang('kn')">ಕ</button>
+      <button class="lang-btn" onclick="setLang('ta')">த</button>
+      <button class="lang-btn" onclick="setLang('te')">తె</button>
+    </div>
+    <span class="conn-badge"><span class="conn-dot"></span><span data-i18n="online">Online</span></span>
+    <div class="farmer-badge">
+      <div class="farmer-avatar">👨‍🌾</div>
+      <span data-i18n="farmer_name">Ramesh</span>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-btn active" onclick="showPage('dashboard')">
+    <span class="mnav-icon">🏠</span><span data-i18n="nav_home_short">Home</span>
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('log')">
+    <span class="mnav-icon">📝</span><span data-i18n="nav_log_short">Log</span>
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('history')">
+    <span class="mnav-icon">📊</span><span data-i18n="nav_history_short">History</span>
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('cost')">
+    <span class="mnav-icon">💰</span><span data-i18n="nav_cost_short">Cost</span>
+  </button>
+</nav>
+
+<!-- ════════ DASHBOARD ════════ -->
+<div id="page-dashboard" class="page active">
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1 data-i18n="hero_greeting">Good Morning, Ramesh! 🌤️</h1>
+      <p id="hero-subtitle">Your crops are mostly healthy today.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="val">1</div><div class="lbl" data-i18n="stat_sensors">Sensor Active</div></div>
+      <div class="hero-stat"><div class="val">1</div><div class="lbl" data-i18n="stat_plants">Plant Tracked</div></div>
+      <div class="hero-stat"><div class="val" id="hero-alert-val">—</div><div class="lbl" data-i18n="stat_alerts">Alerts Today</div></div>
+    </div>
+  </div>
+
+  <!-- PLANT TABS -->
+  <div class="section-header">
+    <div class="section-title">🌱 <span data-i18n="select_plant">Select Plant</span></div>
+  </div>
+  <div class="plant-tabs" style="margin-bottom: 22px;">
+    <div class="plant-tab active">🍅 <span data-i18n="plant_tomato">Tomato (Plot A)</span></div>
+  </div>
+
+  <!-- SENSOR CARDS -->
+  <div class="section-header">
+    <div class="section-title">📡 <span data-i18n="live_sensors">Live Sensor Readings</span></div>
+    <span class="section-badge">Live</span>
+  </div>
+  <div class="sensor-grid">
+    <div class="sensor-card moisture">
+      <div class="sensor-icon-wrap">💧</div>
+      <div class="sensor-label" data-i18n="s_moisture">Soil Moisture</div>
+      <div class="sensor-value">62<span>%</span></div>
+      <div class="sensor-bar-track"><div class="sensor-bar" style="width:62%"></div></div>
+      <span class="sensor-pill pill-ok" data-i18n="s_optimal">✓ Optimal</span>
+    </div>
+    <div class="sensor-card temp">
+      <div class="sensor-icon-wrap">🌡️</div>
+      <div class="sensor-label" data-i18n="s_temp">Temperature</div>
+      <div class="sensor-value">34<span>°C</span></div>
+      <div class="sensor-bar-track"><div class="sensor-bar" style="width:78%"></div></div>
+      <span class="sensor-pill pill-warn" data-i18n="s_high_temp">⚠ High Temp</span>
+    </div>
+    <div class="sensor-card light">
+      <div class="sensor-icon-wrap">☀️</div>
+      <div class="sensor-label" data-i18n="s_light">Light Intensity</div>
+      <div class="sensor-value">71<span>%</span></div>
+      <div class="sensor-bar-track"><div class="sensor-bar" style="width:71%"></div></div>
+      <span class="sensor-pill pill-ok" data-i18n="s_good_light">✓ Good Light</span>
+    </div>
+    <div class="sensor-card humidity">
+      <div class="sensor-icon-wrap">🌫️</div>
+      <div class="sensor-label" data-i18n="s_humidity">Air Humidity</div>
+      <div class="sensor-value">58<span>%</span></div>
+      <div class="sensor-bar-track"><div class="sensor-bar" style="width:58%"></div></div>
+      <span class="sensor-pill pill-purple" data-i18n="s_normal">ℹ Normal</span>
+    </div>
+  </div>
+
+  <!-- MID GRID: STRESS + ABSORPTION -->
+  <div class="mid-grid">
+    <!-- STRESS -->
+    <div class="card">
+      <div class="stress-inner">
+        <div class="stress-top">
+          <div>
+            <div class="stress-label" data-i18n="stress_title">🧠 Stress Classification</div>
+            <div class="stress-sub" data-i18n="stress_sub">Offline AI — ESP32 Decision Tree</div>
+          </div>
+          <span class="stress-badge green" data-i18n="stress_healthy">✓ Healthy</span>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px" data-i18n="stress_based">Analysis from all 4 sensor inputs:</p>
+        <div class="stress-classes">
+          <div class="stress-class"><span>🌊</span><span data-i18n="sc_over">Overwatered</span></div>
+          <div class="stress-class active"><span>✅</span><span data-i18n="sc_healthy">Healthy (Now)</span></div>
+          <div class="stress-class"><span>🏜️</span><span data-i18n="sc_under">Underwatered</span></div>
+          <div class="stress-class"><span>🍂</span><span data-i18n="sc_nutrient">Nutrient Def.</span></div>
+        </div>
+        <div class="offline-chip" data-i18n="offline_note">🔌 Works offline — no internet needed</div>
+      </div>
+    </div>
+
+    <!-- ABSORPTION -->
+    <div class="card">
+      <div class="absorption-inner">
+        <div class="section-title" style="margin-bottom:4px">📈 <span data-i18n="absorption_title">Moisture Absorption Rate</span></div>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px" data-i18n="absorption_sub">Post-watering moisture over last 60 min</p>
+        <div class="absorption-svg-wrap">
+          <svg id="abs-svg" viewBox="0 0 320 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="absGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="25" x2="320" y2="25" stroke="#e8ede8" stroke-width="1"/>
+            <line x1="0" y1="60" x2="320" y2="60" stroke="#e8ede8" stroke-width="1"/>
+            <line x1="0" y1="95" x2="320" y2="95" stroke="#e8ede8" stroke-width="1"/>
+            <path id="abs-fill" d="" fill="url(#absGrad)"/>
+            <path id="abs-line" d="" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle id="abs-dot-start" cx="0" cy="95" r="4" fill="#3b82f6" stroke="white" stroke-width="1.5"/>
+            <circle id="abs-dot-end"   cx="320" cy="95" r="4" fill="#3b82f6" stroke="white" stroke-width="1.5"/>
+            <text x="4"   y="107" fill="#7fa880" font-size="9" font-family="sans-serif">0 min</text>
+            <text x="272" y="107" fill="#7fa880" font-size="9" font-family="sans-serif">60 min</text>
+          </svg>
+        </div>
+        <div class="absorption-footer">
+          <div class="absorption-stat">
+            <strong id="abs-status-text">Absorption: —</strong>
+            <small id="abs-rot-text">Waiting for sensor data</small>
+          </div>
+          <div>
+            <div class="absorption-gain" id="abs-gain-pct">—</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);text-align:right" data-i18n="abs_gain">Moisture gain</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CARD -->
+  <div class="section-header">
+    <div class="section-title">🤖 <span data-i18n="ai_title">AI Care Recommendation</span></div>
+    <span class="ai-live-chip" data-i18n="ai_chip">Live AI</span>
+  </div>
+  <div class="card ai-card-wrap" style="margin-bottom:20px">
+    <div class="ai-inner">
+      <div class="ai-header">
+        <div class="ai-title-block">
+          <h3 id="ai-card-title" data-i18n="ai_card_title">Today's Care Advice — Tomato (Plot A)</h3>
+          <p id="ai-card-meta" data-i18n="ai_card_meta">Click "Get AI Advice" to generate live advice · CropSense Offline Engine</p>
+        </div>
+      </div>
+
+      <!-- LEAF PHOTO UPLOAD -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🍃 Leaf Photo (Optional)</div>
+        <label id="leaf-upload-label" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);background:var(--green-50);cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--green-500)'" onmouseout="this.style.borderColor='var(--border-strong)'">
+          <input type="file" id="leaf-photo-input" accept="image/*" style="display:none" onchange="handleLeafPhoto(event)">
+          <div id="leaf-upload-empty" style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:1.4rem">📷</span>
+            <div>
+              <div style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)">Upload a photo of the leaf</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">AI will analyse it along with your sensor data</div>
+            </div>
+          </div>
+          <div id="leaf-preview-wrap" style="display:none;align-items:center;gap:10px;width:100%">
+            <img id="leaf-preview-img" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid var(--green-200)">
+            <div>
+              <div style="font-size:0.8rem;font-weight:600;color:var(--green-700)">✅ Leaf photo ready</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">Will be included in AI analysis</div>
+            </div>
+            <button onclick="event.preventDefault(); clearLeafPhoto()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:0.72rem;cursor:pointer;color:var(--text-muted)">✕ Remove</button>
+          </div>
+        </label>
+      </div>
+
+      <div class="ai-output" id="ai-rec-text">
+        <span class="ai-placeholder-text" id="ai-placeholder" data-i18n="ai_placeholder">
+          Press Get AI Advice — CropSense will analyse your sensor readings and leaf photo to give personalised care steps. 🌱
+        </span>
+      </div>
+
+      <div id="ai-loading" style="display:none">
+        <div class="ai-loading-block">
+          <div class="ai-loading-row">
+            <div class="spinner"></div>
+            <span class="loading-msg-text" id="ai-loading-msg" data-i18n="ai_loading">Analysing sensor readings…</span>
+          </div>
+          <div class="shimmer-line" style="width:88%"></div>
+          <div class="shimmer-line" style="width:72%"></div>
+          <div class="shimmer-line" style="width:80%"></div>
+          <div class="shimmer-line" style="width:56%"></div>
+        </div>
+      </div>
+
+      <div class="ai-actions">
+        <button class="btn btn-primary" id="btn-get-advice" onclick="getNewAdvice()" data-i18n="btn_get_advice">✨ Get AI Advice</button>
+        <button class="btn btn-ghost" id="btn-helpful" onclick="markHelpful()" style="display:none" data-i18n="btn_helpful">👍 Helpful</button>
+        <button class="btn btn-ghost" id="btn-log" onclick="showPage('log')" style="display:none" data-i18n="btn_log_outcome">📝 Log Outcome</button>
+        <button class="btn btn-ghost" id="btn-share" onclick="shareAdvice()" style="display:none" data-i18n="btn_share">📤 Share</button>
+      </div>
+      <div id="ai-error" class="ai-error" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="section-header">
+    <div class="section-title">🔔 <span data-i18n="alerts_title">Alerts</span></div>
+    <span class="section-badge" id="alerts-count-badge">—</span>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="padding: 16px;">
+      <div class="alerts-stack" id="alerts-stack">
+        <div style="font-size:0.84rem;color:var(--text-muted);padding:8px 0">Alerts will appear here based on your live sensor readings.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════ LOG PAGE ════════ -->
+<div id="page-log" class="page">
+<div class="container">
+  <div class="hero" style="margin-bottom:24px">
+    <div class="hero-text">
+      <h1 data-i18n="log_title">📝 Give a Review for This Log</h1>
+      <p data-i18n="log_subtitle">You uploaded a photo and got advice on the Dashboard — now tell us what happened. A few quick questions, then snap an "after" photo so we can compare.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-body">
+      <label class="form-label">🖼️ Your Diagnosis Photo (Before)</label>
+      <div id="log-before-photo-wrap" style="margin-top:8px">
+        <!-- Filled in by JS from the Dashboard upload -->
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-i18n="log_which_plant">🌱 Which Plant?</label>
+          <select class="form-control" id="log-plant">
+            <option value="tomato" data-i18n="plant_tomato">🍅 Tomato – Plot A</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="log_date">📅 Date of Recommendation</label>
+          <input type="date" class="form-control" id="log-date">
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_outcome_label">🌿 Q1. What happened after following the advice?</label>
+          <div class="outcome-grid" id="log-outcome-grid">
+            <button class="outcome-btn" onclick="selectOutcome(this)" data-i18n="oc_recovered">✅ Plant Recovered</button>
+            <button class="outcome-btn" onclick="selectOutcome(this)" data-i18n="oc_improving">📈 Slowly Improving</button>
+            <button class="outcome-btn" onclick="selectOutcome(this)" data-i18n="oc_nochange">😐 No Change</button>
+            <button class="outcome-btn" onclick="selectOutcome(this)" data-i18n="oc_worse">📉 Got Worse</button>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_effectiveness_label">⭐ Q2. How effective was the advice, overall?</label>
+          <div class="outcome-grid" id="log-effectiveness-grid">
+            <button class="outcome-btn" onclick="selectEffectiveness(this)" data-i18n="eff_very">Very effective</button>
+            <button class="outcome-btn" onclick="selectEffectiveness(this)" data-i18n="eff_somewhat">Somewhat effective</button>
+            <button class="outcome-btn" onclick="selectEffectiveness(this)" data-i18n="eff_none">Not effective</button>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_wouldrepeat_label">🔁 Q3. Would you follow this advice again for a similar issue?</label>
+          <div class="outcome-grid" id="log-wouldrepeat-grid">
+            <button class="outcome-btn" onclick="selectWouldRepeat(this)" data-i18n="wr_yes">Yes</button>
+            <button class="outcome-btn" onclick="selectWouldRepeat(this)" data-i18n="wr_notsure">Not sure</button>
+            <button class="outcome-btn" onclick="selectWouldRepeat(this)" data-i18n="wr_no">No</button>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_notes">💬 Q4. Anything else you noticed? (Optional)</label>
+          <textarea class="form-control" id="log-notes" data-i18n-placeholder="log_notes_ph" placeholder="e.g. Added compost, plant looked greener after 2 days..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_photo">📸 Q5. Upload an "After" Photo (Optional)</label>
+          <label class="photo-drop" for="photo-input">
+            <input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(event)">
+            <div id="photo-drop-empty">
+              <div class="photo-drop-icon">📷</div>
+              <div class="photo-drop-text" data-i18n="photo_tap">Tap to take a photo or choose from gallery</div>
+            </div>
+            <div id="photo-preview" style="display:none"></div>
+          </label>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" data-i18n="log_weather">🌦️ Q6. Recent Weather in Your Area?</label>
+          <div class="weather-row">
+            <label class="weather-option"><input type="radio" name="weather" checked> ☀️ <span data-i18n="w_sunny">Sunny</span></label>
+            <label class="weather-option"><input type="radio" name="weather"> 🌧️ <span data-i18n="w_rainy">Rainy</span></label>
+            <label class="weather-option"><input type="radio" name="weather"> ⛅ <span data-i18n="w_cloudy">Cloudy</span></label>
+            <label class="weather-option"><input type="radio" name="weather"> 🌩️ <span data-i18n="w_storm">Storm</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="log_product_label">🧪 Q7. Which product/remedy did you actually use?</label>
+          <input type="text" class="form-control" id="log-product-used" data-i18n-placeholder="log_product_ph" placeholder="e.g. Neem oil spray, Copper fungicide...">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="log_days_label">📅 Q8. How many days after applying did you see this result?</label>
+          <select class="form-control" id="log-days-after">
+            <option value="" data-i18n="days_select">Select…</option>
+            <option value="1-2" data-i18n="days_1_2">1–2 days</option>
+            <option value="3-5" data-i18n="days_3_5">3–5 days</option>
+            <option value="6-10" data-i18n="days_6_10">6–10 days</option>
+            <option value="10+" data-i18n="days_10plus">More than 10 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="submit-btn-full" onclick="submitLog()" data-i18n="btn_submit">✅ Submit My Review</button>
+        <p class="form-note" data-i18n="log_privacy">Your data is anonymised and shared to help all farmers in your region.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════ HISTORY PAGE ════════ -->
+<div id="page-history" class="page">
+<div class="container">
+  <div class="section-header" style="margin-bottom:16px">
+    <div class="section-title">📊 <span data-i18n="history_title">Recommendation History</span></div>
+    <div class="live-badge" id="history-live-badge"><span class="live-dot"></span><span data-i18n="live_synced">Live · synced with Firestore</span></div>
+  </div>
+
+  <div class="card trend-card" style="margin-bottom:16px">
+    <div class="trend-head">
+      <div class="trend-head-title">📈 <span data-i18n="trend_title">Recovery Trend</span></div>
+      <div class="trend-head-sub" id="trend-head-sub" data-i18n="trend_sub">Based on your logged outcomes over time</div>
+    </div>
+    <div class="trend-svg-wrap" id="trend-svg-wrap">
+      <div class="trend-empty" id="trend-empty">
+        📊 <span data-i18n="trend_empty">No check-ins logged yet — submit your first outcome to start the trend.</span>
+        <div class="trend-empty-cta"><button class="btn btn-primary" onclick="showPage('log')" data-i18n="btn_log_outcome">📝 Log Outcome</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-body">
+      <div class="trend-head" style="margin-bottom:12px">
+        <div class="trend-head-title">🖼️ <span data-i18n="photo_compare_title">Before / After</span></div>
+        <div class="trend-head-sub" data-i18n="photo_compare_sub">From your uploaded leaf photos</div>
+      </div>
+      <div class="photo-compare-row" id="photo-compare-row">
+        <div class="photo-empty" data-i18n="photo_empty">📷 No photos logged yet — upload a leaf photo next time you get advice.</div>
+      </div>
+      <div class="photo-strip" id="photo-strip"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="history-table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th data-i18n="th_date">Date</th>
+            <th data-i18n="th_plant">Plant</th>
+            <th data-i18n="th_stress">Stress Type</th>
+            <th data-i18n="th_rec">Recommendation</th>
+            <th data-i18n="th_outcome">Outcome</th>
+            <th data-i18n="th_photo">Photo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="history-empty-row">
+            <td colspan="6" data-i18n="history_loading">Connecting to live history…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="big-num" style="color:var(--green-600)" id="stat-worked">—</div>
+      <div class="stat-label" data-i18n="stat_worked">Recommendations Worked</div>
+    </div>
+    <div class="stat-card">
+      <div class="big-num" style="color:var(--blue-500)" id="stat-logs">—</div>
+      <div class="stat-label" data-i18n="stat_logs">Total Logs Submitted</div>
+    </div>
+    <div class="stat-card">
+      <div class="big-num" style="color:var(--amber-500)" id="stat-photos">—</div>
+      <div class="stat-label" data-i18n="stat_photos">Photos Uploaded</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════ COST PAGE ════════ -->
+<div id="page-cost" class="page">
+<div class="container">
+  <div class="section-header" style="margin-bottom:16px">
+    <div class="section-title">💰 <span data-i18n="cost_title">Input Cost Estimator</span></div>
+  </div>
+  <p style="color:var(--text-muted);margin-bottom:20px;font-size:0.86rem;font-weight:500" data-i18n="cost_subtitle">Estimated inputs and costs based on your latest diagnosis.</p>
+
+  <div id="cost-disease-banner" style="display:none;background:var(--amber-50);border:1px solid var(--amber-500);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:0.85rem;font-weight:600;color:#92400e">
+    🔬 Costs updated for: <span id="cost-disease-name">—</span>
+  </div>
+
+  <div class="cost-grid">
+    <div class="card" style="grid-column: span 2">
+      <div class="card-body">
+        <div class="section-title" style="margin-bottom:14px">🌿 Tomato (Plot A) — Recommended Inputs</div>
+        <div id="cost-items-list">
+          <div style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;text-align:center">
+            💡 Get AI Advice on the dashboard first — costs will update based on your plant's diagnosis.
+          </div>
+        </div>
+        <div class="cost-total-bar" style="margin-top:14px">
+          <span class="label" data-i18n="cost_weekly">Estimated Weekly Cost</span>
+          <span class="amount" id="cost-total-amount">₹ —</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="budget-summary">
+      <div class="budget-summary-top">
+        <div>
+          <h3 data-i18n="cost_total_title">Total Farm Budget — This Week</h3>
+          <p id="cost-summary-disease" style="font-size:0.78rem;color:var(--text-muted);font-weight:500">Get advice to see breakdown</p>
+        </div>
+        <div class="budget-big" id="cost-big-total">₹ —</div>
+      </div>
+      <div class="budget-actions">
+        <button class="btn btn-primary" onclick="saveBudgetToFirebase()" data-i18n="btn_save_budget">💾 Save Budget</button>
+        <button class="btn btn-ghost" onclick="shareBudgetWhatsApp()" data-i18n="btn_share_wp">📤 Share on WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TRANSLATIONS (preserved exactly from original) ──
+const TRANSLATIONS = {
+en:{
+  nav_home:'🏠 Dashboard', nav_log:'📝 Log Outcome', nav_history:'📊 History', nav_cost:'💰 Cost',
+  nav_home_short:'Home', nav_log_short:'Log', nav_history_short:'History', nav_cost_short:'Cost',
+  online:'Online', farmer_name:'Ramesh',
+  hero_greeting:'Good Morning, Ramesh! 🌤️',
+  hero_subtitle_ok:'All sensor readings look healthy right now.',
+  hero_subtitle_warn:'{n} sensor reading{s} need attention right now.',
+  stat_sensors:'Sensor Active', stat_plants:'Plant Tracked', stat_alerts:'Alerts Today',
+  select_plant:'Select Plant',
+  plant_tomato:'Tomato (Plot A)', plant_wheat:'Wheat (Plot B)', plant_rice:'Rice (Plot C)', plant_add:'Add Plant',
+  plant_tomato_short:'Tomato (Plot A)',
+  live_sensors:'Live Sensor Readings',
+  s_moisture:'Soil Moisture', s_temp:'Temperature', s_light:'Light Intensity', s_humidity:'Air Humidity',
+  s_optimal:'✓ Optimal', s_high_temp:'⚠ High Temp', s_good_light:'✓ Good Light', s_normal:'ℹ Normal',
+  s_low_moisture:'⚠ Low Moisture', s_overwatered:'⚠ Overwatered?',
+  stress_title:'🧠 Stress Classification', stress_sub:'Offline AI — ESP32 Decision Tree',
+  stress_healthy:'✓ Healthy', stress_based:'Analysis from all 4 sensor inputs:',
+  sc_over:'Overwatered', sc_healthy:'Healthy (Now)', sc_under:'Underwatered', sc_nutrient:'Nutrient Def.',
+  sc_rootrot:'Root Rot Risk', sc_healthy_s:'Healthy',
+  offline_note:'🔌 Works offline — no internet needed',
+  absorption_title:'Moisture Absorption Rate', absorption_sub:'Post-watering moisture over last 60 min',
+  abs_status:'Absorption: Normal', abs_no_rot:'No root rot detected', abs_gain:'Moisture gain',
+  ai_title:'AI Care Recommendation',
+  ai_card_title:"Today's Care Advice — Tomato (Plot A)",
+  ai_card_meta:'Click "Get AI Advice" to generate live advice · Powered by CropSense AI',
+  ai_chip:'Live AI',
+  ai_placeholder:'Press Get AI Advice — Claude will analyse your sensor readings and give personalised care steps. 🌱',
+  ai_loading:'Analysing sensor data…',
+  btn_get_advice:'✨ Get AI Advice', btn_helpful:'👍 Helpful', btn_log_outcome:'📝 Log Outcome', btn_share:'📤 Share',
+  alerts_title:'Alerts',
+  alert1_title:'High Temperature Detected', alert1_body:'Soil temp exceeded 33°C threshold. Consider shading or mulching.', alert1_time:'Today, 07:42 AM',
+  alert2_title:'Wheat (Plot B) — Healthy Status', alert2_body:'All parameters within optimal range. No action needed.', alert2_time:'Today, 06:00 AM',
+  alert3_title:'Absorption Rate Normal', alert3_body:'No drainage or root rot issues detected in Plot A.', alert3_time:'Yesterday, 05:30 PM',
+  log_title:'📝 Log Outcome', log_subtitle:'After following advice, log what happened. Your feedback helps all farmers. 🌍',
+  log_which_plant:'🌱 Which Plant?', log_date:'📅 Date of Recommendation',
+  log_outcome_label:'🌿 What happened after following the advice?',
+  oc_recovered:'✅ Plant Recovered', oc_improving:'📈 Slowly Improving', oc_nochange:'😐 No Change', oc_worse:'📉 Got Worse',
+  log_notes:'💬 Additional Notes (Optional)', log_notes_ph:'e.g. Added compost, plant looked greener after 2 days...',
+  log_photo:'📸 Upload Field Photo (Optional)', photo_tap:'Tap to take a photo or choose from gallery',
+  log_weather:'🌦️ Recent Weather in Your Area?',
+  w_sunny:'Sunny', w_rainy:'Rainy', w_cloudy:'Cloudy', w_storm:'Storm',
+  log_effectiveness_label:'⭐ Q2. How effective was the advice, overall?',
+  eff_very:'Very effective', eff_somewhat:'Somewhat effective', eff_none:'Not effective',
+  log_wouldrepeat_label:'🔁 Q3. Would you follow this advice again for a similar issue?',
+  wr_yes:'Yes', wr_notsure:'Not sure', wr_no:'No',
+  log_product_label:'🧪 Q7. Which product/remedy did you actually use?',
+  log_product_ph:'e.g. Neem oil spray, Copper fungicide...',
+  log_days_label:'📅 Q8. How many days after applying did you see this result?',
+  days_select:'Select…', days_1_2:'1–2 days', days_3_5:'3–5 days', days_6_10:'6–10 days', days_10plus:'More than 10 days',
+  modal_outcome:'Outcome', modal_effectiveness:'Effectiveness', modal_wouldrepeat:'Would repeat advice',
+  modal_notes:'Notes', modal_weather:'Weather', modal_product:'Product used', modal_days:'Days until result',
+  modal_stress:'Stress level at time of log', modal_before:'BEFORE (Dashboard)', modal_after:'AFTER (Review)',
+  btn_submit:'✅ Submit My Feedback', log_privacy:'Your data is anonymised and shared to help all farmers in your region.',
+  history_title:'Recommendation History',
+  live_synced:'Live · synced with Firestore',
+  trend_title:'Recovery Trend', trend_sub:'Based on your logged outcomes over time',
+  trend_empty:'No check-ins logged yet — submit your first outcome to start the trend.',
+  photo_compare_title:'Before / After', photo_compare_sub:'From your uploaded leaf photos',
+  photo_empty:'📷 No photos logged yet — upload a leaf photo next time you get advice.',
+  history_loading:'Connecting to live history…',
+  th_date:'Date', th_plant:'Plant', th_stress:'Stress Type', th_rec:'Recommendation', th_outcome:'Outcome', th_photo:'Photo',
+  ht_hightemp:'High Temp', ht_rec1:'Mulch around roots, shade during afternoon',
+  ht_rec2:'No action needed. Monitor moisture weekly.',
+  ht_rec3:'Water deeply in morning, 2 litres per plant',
+  ht_rec4:'Reduce watering, improve drainage',
+  stat_worked:'Recommendations Worked', stat_logs:'Total Logs Submitted', stat_photos:'Photos Uploaded',
+  cost_title:'Input Cost Estimator', cost_subtitle:'Estimated inputs and costs for your crops this week.',
+  cost_tomato_hd:'Tomato (Plot A)', cost_wheat_hd:'Wheat (Plot B)',
+  ci_mulch:'Mulch / Dry Straw', ci_mulch_qty:'5 kg for 10 sqm',
+  ci_urea:'Urea Fertilizer', ci_urea_qty:'1 kg bag',
+  ci_neem:'Neem Oil Spray', ci_neem_qty:'100 ml diluted',
+  ci_none:'No inputs needed', ci_healthy:'Plant is healthy',
+  cost_weekly:'Estimated Weekly Cost', cost_total_title:'Total Farm Budget — This Week', cost_all_plots:'All plots combined',
+  btn_save_budget:'💾 Save Budget', btn_share_wp:'📤 Share on WhatsApp',
+  toast_saved:'📲 Budget saved!', toast_shared:'📤 Shared via WhatsApp!',
+  toast_helpful:'✅ Marked as helpful! Improves future advice.',
+  toast_copied:'📋 Advice copied! Share with a fellow farmer.',
+  toast_coming:'🌱 Feature coming soon: Add custom plant!',
+  toast_submitted:'🎉 Feedback submitted! Thank you, Ramesh!',
+  ai_lang_code:'English',
+  loading_msgs:['Analysing sensor data…','Analysing moisture & temperature…','Generating your personalised advice…','Almost ready…'],
+  ai_refreshed:'🔄 Refresh Advice', ai_thinking:'⏳ Thinking…',
+  ai_meta_gen:'Generated', ai_meta_live:'Live CropSense AI',
+  toast_ai_ready:'🤖 Live advice from CropSense AI ready!'
+},
+hi:{
+  nav_home:'🏠 डैशबोर्ड', nav_log:'📝 परिणाम दर्ज', nav_history:'📊 इतिहास', nav_cost:'💰 लागत',
+  nav_home_short:'होम', nav_log_short:'दर्ज', nav_history_short:'इतिहास', nav_cost_short:'लागत',
+  online:'ऑनलाइन', farmer_name:'रमेश',
+  hero_greeting:'सुप्रभात, रमेश! 🌤️',
+  hero_subtitle_ok:'आपकी फसलें अभी स्वस्थ हैं।',
+  hero_subtitle_warn:'{n} सेंसर रीडिंग पर ध्यान देने की जरूरत है।',
+  stat_sensors:'सेंसर सक्रिय', stat_plants:'फसलें ट्रैक', stat_alerts:'आज का अलर्ट',
+  select_plant:'फसल चुनें',
+  plant_tomato:'टमाटर (क्षेत्र A)', plant_wheat:'गेहूं (क्षेत्र B)', plant_rice:'चावल (क्षेत्र C)', plant_add:'फसल जोड़ें',
+  plant_tomato_short:'टमाटर (क्षेत्र A)',
+  live_sensors:'लाइव सेंसर रीडिंग',
+  s_moisture:'मिट्टी की नमी', s_temp:'तापमान', s_light:'प्रकाश तीव्रता', s_humidity:'वायु आर्द्रता',
+  s_optimal:'✓ सही', s_high_temp:'⚠ अधिक तापमान', s_good_light:'✓ अच्छा प्रकाश', s_normal:'ℹ सामान्य',
+  s_low_moisture:'⚠ कम नमी', s_overwatered:'⚠ अधिक पानी?',
+  stress_title:'🧠 तनाव वर्गीकरण', stress_sub:'ऑफलाइन AI — ESP32',
+  stress_healthy:'✓ स्वस्थ', stress_based:'सभी 4 सेंसर के आधार पर:',
+  sc_over:'अधिक पानी', sc_healthy:'स्वस्थ (अभी)', sc_under:'कम पानी', sc_nutrient:'पोषक तत्व की कमी',
+  sc_rootrot:'जड़ सड़न का खतरा', sc_healthy_s:'स्वस्थ',
+  offline_note:'🔌 बिना इंटरनेट के काम करता है',
+  absorption_title:'नमी अवशोषण दर', absorption_sub:'पानी देने के बाद 60 मिनट में नमी',
+  abs_status:'अवशोषण: सामान्य', abs_no_rot:'जड़ सड़न नहीं मिली', abs_gain:'नमी में वृद्धि',
+  ai_title:'AI देखभाल सलाह',
+  ai_card_title:'आज की सलाह — टमाटर (क्षेत्र A)',
+  ai_card_meta:'"AI सलाह लें" दबाएं — CropSense AI द्वारा',
+  ai_chip:'लाइव AI',
+  ai_placeholder:'AI सलाह लें दबाएं — Claude आपके सेंसर डेटा का विश्लेषण करेगा। 🌱',
+  ai_loading:'सेंसर डेटा विश्लेषण हो रहा है…',
+  btn_get_advice:'✨ AI सलाह लें', btn_helpful:'👍 उपयोगी', btn_log_outcome:'📝 परिणाम दर्ज', btn_share:'📤 साझा करें',
+  alerts_title:'अलर्ट',
+  alert1_title:'अधिक तापमान का पता चला', alert1_body:'मिट्टी का तापमान 33°C से अधिक। छाया या मल्चिंग करें।', alert1_time:'आज, 07:42 AM',
+  alert2_title:'गेहूं (क्षेत्र B) — स्वस्थ', alert2_body:'सभी मान सही हैं। कोई कार्रवाई जरूरी नहीं।', alert2_time:'आज, 06:00 AM',
+  alert3_title:'अवशोषण दर सामान्य', alert3_body:'क्षेत्र A में जड़ सड़न की कोई समस्या नहीं।', alert3_time:'कल, 05:30 PM',
+  log_title:'📝 परिणाम दर्ज करें', log_subtitle:'सलाह मानने के बाद क्या हुआ — यह दर्ज करें। 🌍',
+  log_which_plant:'🌱 कौन सी फसल?', log_date:'📅 सलाह की तारीख',
+  log_outcome_label:'🌿 सलाह मानने के बाद क्या हुआ?',
+  oc_recovered:'✅ पौधा ठीक हो गया', oc_improving:'📈 धीरे सुधर रहा है', oc_nochange:'😐 कोई बदलाव नहीं', oc_worse:'📉 और खराब हो गया',
+  log_notes:'💬 अतिरिक्त नोट (वैकल्पिक)', log_notes_ph:'जैसे: खाद डाली, 2 दिन बाद पौधा हरा लगा...',
+  log_photo:'📸 खेत की फोटो (वैकल्पिक)', photo_tap:'फोटो खींचें या गैलरी से चुनें',
+  log_weather:'🌦️ हाल का मौसम?',
+  w_sunny:'धूप', w_rainy:'बारिश', w_cloudy:'बादल', w_storm:'तूफान',
+  log_effectiveness_label:'⭐ प्रश्न 2. सलाह कुल मिलाकर कितनी असरदार रही?',
+  eff_very:'बहुत असरदार', eff_somewhat:'कुछ हद तक असरदार', eff_none:'असरदार नहीं',
+  log_wouldrepeat_label:'🔁 प्रश्न 3. क्या आप इसी तरह की समस्या के लिए फिर यही सलाह अपनाएंगे?',
+  wr_yes:'हां', wr_notsure:'पक्का नहीं', wr_no:'नहीं',
+  log_product_label:'🧪 प्रश्न 7. आपने वास्तव में कौन सा उत्पाद/उपाय इस्तेमाल किया?',
+  log_product_ph:'जैसे: नीम तेल स्प्रे, कॉपर फफूंदनाशक...',
+  log_days_label:'📅 प्रश्न 8. लगाने के कितने दिन बाद यह परिणाम दिखा?',
+  days_select:'चुनें…', days_1_2:'1–2 दिन', days_3_5:'3–5 दिन', days_6_10:'6–10 दिन', days_10plus:'10 दिन से ज्यादा',
+  modal_outcome:'परिणाम', modal_effectiveness:'असर', modal_wouldrepeat:'फिर अपनाएंगे',
+  modal_notes:'नोट्स', modal_weather:'मौसम', modal_product:'इस्तेमाल किया गया उत्पाद', modal_days:'परिणाम आने में लगे दिन',
+  modal_stress:'दर्ज करते समय तनाव स्तर', modal_before:'पहले (डैशबोर्ड)', modal_after:'बाद में (समीक्षा)',
+  btn_submit:'✅ मेरी प्रतिक्रिया भेजें', log_privacy:'आपका डेटा गुमनाम रूप से साझा किया जाता है।',
+  history_title:'सलाह इतिहास',
+  live_synced:'लाइव · Firestore से जुड़ा',
+  trend_title:'रिकवरी ट्रेंड', trend_sub:'आपके दर्ज किए गए परिणामों पर आधारित',
+  trend_empty:'अभी तक कोई परिणाम दर्ज नहीं — ट्रेंड शुरू करने के लिए पहला परिणाम दर्ज करें।',
+  photo_compare_title:'पहले / बाद में', photo_compare_sub:'आपकी अपलोड की गई पत्ती फोटो से',
+  photo_empty:'📷 अभी तक कोई फोटो नहीं — अगली बार सलाह लेते समय पत्ती की फोटो अपलोड करें।',
+  history_loading:'लाइव इतिहास से जुड़ रहे हैं…',
+  th_date:'तारीख', th_plant:'फसल', th_stress:'समस्या', th_rec:'सलाह', th_outcome:'परिणाम', th_photo:'फोटो',
+  ht_hightemp:'अधिक तापमान', ht_rec1:'जड़ों के पास मल्च करें, दोपहर में छाया दें',
+  ht_rec2:'कोई काम नहीं। हर हफ्ते नमी जांचें।',
+  ht_rec3:'सुबह गहराई से पानी दें, 2 लीटर प्रति पौधा',
+  ht_rec4:'पानी कम दें, जल निकासी सुधारें',
+  stat_worked:'सलाहें कारगर रहीं', stat_logs:'कुल दर्ज परिणाम', stat_photos:'फोटो अपलोड',
+  cost_title:'लागत अनुमान', cost_subtitle:'इस हफ्ते आपकी फसलों के लिए अनुमानित लागत।',
+  cost_tomato_hd:'टमाटर (क्षेत्र A)', cost_wheat_hd:'गेहूं (क्षेत्र B)',
+  ci_mulch:'मल्च / सूखी घास', ci_mulch_qty:'5 किलो प्रति 10 वर्ग मी.',
+  ci_urea:'यूरिया खाद', ci_urea_qty:'1 किलो बैग',
+  ci_neem:'नीम तेल स्प्रे', ci_neem_qty:'100 मिली पतला',
+  ci_none:'कोई इनपुट जरूरी नहीं', ci_healthy:'पौधा स्वस्थ है',
+  cost_weekly:'साप्ताहिक लागत', cost_total_title:'कुल खेत बजट — इस हफ्ते', cost_all_plots:'सभी क्षेत्र मिलाकर',
+  btn_save_budget:'💾 बजट सेव करें', btn_share_wp:'📤 WhatsApp पर साझा करें',
+  toast_saved:'📲 बजट सेव हो गया!', toast_shared:'📤 WhatsApp पर साझा किया!',
+  toast_helpful:'✅ उपयोगी के रूप में चिह्नित!', toast_copied:'📋 सलाह कॉपी हो गई!',
+  toast_coming:'🌱 जल्द आएगा!', toast_submitted:'🎉 प्रतिक्रिया भेजी गई! धन्यवाद, रमेश!',
+  ai_lang_code:'हिंदी',
+  loading_msgs:['सेंसर डेटा विश्लेषण हो रहा है…','नमी और तापमान का विश्लेषण…','आपके लिए सलाह तैयार हो रही है…','लगभग तैयार…'],
+  ai_refreshed:'🔄 नई सलाह लें', ai_thinking:'⏳ सोच रहा है…',
+  ai_meta_gen:'उत्पन्न', ai_meta_live:'लाइव CropSense AI', toast_ai_ready:'🤖 CropSense AI की सलाह तैयार है!'
+},
+kn:{
+  nav_home:'🏠 ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', nav_log:'📝 ಫಲಿತಾಂಶ ದಾಖಲಿಸಿ', nav_history:'📊 ಇತಿಹಾಸ', nav_cost:'💰 ವೆಚ್ಚ',
+  nav_home_short:'ಮನೆ', nav_log_short:'ದಾಖಲು', nav_history_short:'ಇತಿಹಾಸ', nav_cost_short:'ವೆಚ್ಚ',
+  online:'ಆನ್‌ಲೈನ್', farmer_name:'ರಮೇಶ್',
+  hero_greeting:'ಶುಭೋದಯ, ರಮೇಶ್! 🌤️',
+  hero_subtitle_ok:'ನಿಮ್ಮ ಬೆಳೆಗಳು ಈಗ ಆರೋಗ್ಯಕರವಾಗಿವೆ.',
+  hero_subtitle_warn:'{n} ಸೆನ್ಸಾರ್ ರೀಡಿಂಗ್‌ಗಳಿಗೆ ಗಮನ ಬೇಕು.',
+  stat_sensors:'ಸೆನ್ಸರ್‌ಗಳು ಸಕ್ರಿಯ', stat_plants:'ಬೆಳೆಗಳ ಟ್ರ್ಯಾಕ್', stat_alerts:'ಇಂದಿನ ಎಚ್ಚರಿಕೆ',
+  select_plant:'ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ',
+  plant_tomato:'ಟೊಮ್ಯಾಟೊ (ಜಮೀನು A)', plant_wheat:'ಗೋಧಿ (ಜಮೀನು B)', plant_rice:'ಭತ್ತ (ಜಮೀನು C)', plant_add:'ಬೆಳೆ ಸೇರಿಸಿ',
+  plant_tomato_short:'ಟೊಮ್ಯಾಟೊ (ಜಮೀನು A)',
+  live_sensors:'ನೇರ ಸೆನ್ಸರ್ ರೀಡಿಂಗ್',
+  s_moisture:'ಮಣ್ಣಿನ ತೇವಾಂಶ', s_temp:'ತಾಪಮಾನ', s_light:'ಬೆಳಕಿನ ತೀವ್ರತೆ', s_humidity:'ಗಾಳಿ ತೇವಾಂಶ',
+  s_optimal:'✓ ಸರಿಯಾಗಿದೆ', s_high_temp:'⚠ ಹೆಚ್ಚು ತಾಪ', s_good_light:'✓ ಉತ್ತಮ ಬೆಳಕು', s_normal:'ℹ ಸಾಮಾನ್ಯ',
+  s_low_moisture:'⚠ ಕಡಿಮೆ ತೇವ', s_overwatered:'⚠ ಹೆಚ್ಚು ನೀರು?',
+  stress_title:'🧠 ಒತ್ತಡ ವರ್ಗೀಕರಣ', stress_sub:'ಆಫ್‌ಲೈನ್ AI — ESP32',
+  stress_healthy:'✓ ಆರೋಗ್ಯಕರ', stress_based:'4 ಸೆನ್ಸರ್ ಆಧಾರದ ವಿಶ್ಲೇಷಣೆ:',
+  sc_over:'ಹೆಚ್ಚು ನೀರು', sc_healthy:'ಆರೋಗ್ಯಕರ (ಈಗ)', sc_under:'ಕಡಿಮೆ ನೀರು', sc_nutrient:'ಪೋಷಕಾಂಶ ಕೊರತೆ',
+  sc_rootrot:'ಬೇರು ಕೊಳೆ ಅಪಾಯ', sc_healthy_s:'ಆರೋಗ್ಯಕರ',
+  offline_note:'🔌 ಇಂಟರ್ನೆಟ್ ಇಲ್ಲದೆ ಕಾರ್ಯ ನಿರ್ವಹಿಸುತ್ತದೆ',
+  absorption_title:'ತೇವ ಹೀರಿಕೊಳ್ಳುವ ದರ', absorption_sub:'ನೀರು ಹಾಕಿದ 60 ನಿಮಿಷ ತೇವ',
+  abs_status:'ಹೀರಿಕೆ: ಸಾಮಾನ್ಯ', abs_no_rot:'ಬೇರು ಕೊಳೆ ಇಲ್ಲ', abs_gain:'ತೇವ ಹೆಚ್ಚಳ',
+  ai_title:'AI ಆರೈಕೆ ಸಲಹೆ',
+  ai_card_title:'ಇಂದಿನ ಸಲಹೆ — ಟೊಮ್ಯಾಟೊ (ಜಮೀನು A)',
+  ai_card_meta:'"AI ಸಲಹೆ ಪಡೆಯಿರಿ" ಒತ್ತಿರಿ · CropSense AI',
+  ai_chip:'ನೇರ AI',
+  ai_placeholder:'AI ಸಲಹೆ ಪಡೆಯಿರಿ ಒತ್ತಿ — Claude ನಿಮ್ಮ ಸೆನ್ಸರ್ ಡೇಟಾ ವಿಶ್ಲೇಷಿಸುತ್ತದೆ. 🌱',
+  ai_loading:'ಸೆನ್ಸರ್ ಡೇಟಾ ವಿಶ್ಲೇಷಣೆ…',
+  btn_get_advice:'✨ AI ಸಲಹೆ ಪಡೆಯಿರಿ', btn_helpful:'👍 ಉಪಯುಕ್ತ', btn_log_outcome:'📝 ಫಲಿತಾಂಶ ದಾಖಲಿಸಿ', btn_share:'📤 ಹಂಚಿಕೊಳ್ಳಿ',
+  alerts_title:'ಎಚ್ಚರಿಕೆಗಳು',
+  alert1_title:'ಹೆಚ್ಚು ತಾಪಮಾನ ಪತ್ತೆ', alert1_body:'ಮಣ್ಣು 33°C ಮೀರಿದೆ. ನೆರಳು ಅಥವಾ ಮಲ್ಚಿಂಗ್ ಮಾಡಿ.', alert1_time:'ಇಂದು, 07:42 AM',
+  alert2_title:'ಗೋಧಿ (ಜಮೀನು B) — ಆರೋಗ್ಯಕರ', alert2_body:'ಎಲ್ಲ ಮೌಲ್ಯಗಳು ಸರಿಯಾಗಿವೆ.', alert2_time:'ಇಂದು, 06:00 AM',
+  alert3_title:'ಹೀರಿಕೆ ದರ ಸಾಮಾನ್ಯ', alert3_body:'ಜಮೀನು A ನಲ್ಲಿ ಬೇರು ಕೊಳೆ ಸಮಸ್ಯೆ ಇಲ್ಲ.', alert3_time:'ನಿನ್ನೆ, 05:30 PM',
+  log_title:'📝 ಫಲಿತಾಂಶ ದಾಖಲಿಸಿ', log_subtitle:'ಸಲಹೆ ಪಾಲಿಸಿದ ನಂತರ ಏನಾಯಿತು — ದಾಖಲಿಸಿ. 🌍',
+  log_which_plant:'🌱 ಯಾವ ಬೆಳೆ?', log_date:'📅 ಸಲಹೆಯ ದಿನಾಂಕ',
+  log_outcome_label:'🌿 ಸಲಹೆ ಪಾಲಿಸಿದ ನಂತರ ಏನಾಯಿತು?',
+  oc_recovered:'✅ ಗಿಡ ಚೇತರಿಸಿತು', oc_improving:'📈 ನಿಧಾನ ಸುಧಾರಿಸುತ್ತಿದೆ', oc_nochange:'😐 ಬದಲಾವಣೆ ಇಲ್ಲ', oc_worse:'📉 ಇನ್ನಷ್ಟು ಹದಗೆಟ್ಟಿತು',
+  log_notes:'💬 ಹೆಚ್ಚುವರಿ ಟಿಪ್ಪಣಿ (ಐಚ್ಛಿಕ)', log_notes_ph:'ಉದಾ: ಕಾಂಪೋಸ್ಟ್ ಹಾಕಿದೆ...',
+  log_photo:'📸 ಫೋಟೋ ಅಪ್‌ಲೋಡ್ (ಐಚ್ಛಿಕ)', photo_tap:'ಫೋಟೋ ತೆಗೆಯಿರಿ ಅಥವಾ ಗ್ಯಾಲರಿಯಿಂದ ಆಯ್ಕೆಮಾಡಿ',
+  log_weather:'🌦️ ಇತ್ತೀಚಿನ ಹವಾಮಾನ?',
+  w_sunny:'ಬಿಸಿಲು', w_rainy:'ಮಳೆ', w_cloudy:'ಮೋಡ', w_storm:'ಚಂಡಮಾರುತ',
+  log_effectiveness_label:'⭐ ಪ್ರಶ್ನೆ 2. ಸಲಹೆ ಒಟ್ಟಾರೆ ಎಷ್ಟು ಪರಿಣಾಮಕಾರಿಯಾಗಿತ್ತು?',
+  eff_very:'ತುಂಬಾ ಪರಿಣಾಮಕಾರಿ', eff_somewhat:'ಸ್ವಲ್ಪ ಪರಿಣಾಮಕಾರಿ', eff_none:'ಪರಿಣಾಮಕಾರಿ ಅಲ್ಲ',
+  log_wouldrepeat_label:'🔁 ಪ್ರಶ್ನೆ 3. ಇದೇ ರೀತಿಯ ಸಮಸ್ಯೆಗೆ ಮತ್ತೆ ಇದೇ ಸಲಹೆ ಅನುಸರಿಸುವಿರಾ?',
+  wr_yes:'ಹೌದು', wr_notsure:'ಖಚಿತವಿಲ್ಲ', wr_no:'ಇಲ್ಲ',
+  log_product_label:'🧪 ಪ್ರಶ್ನೆ 7. ನೀವು ನಿಜವಾಗಿ ಯಾವ ಉತ್ಪನ್ನ/ಪರಿಹಾರ ಬಳಸಿದಿರಿ?',
+  log_product_ph:'ಉದಾ: ಬೇವಿನ ಎಣ್ಣೆ ಸ್ಪ್ರೇ, ಕಾಪರ್ ಫಂಗಿಸೈಡ್...',
+  log_days_label:'📅 ಪ್ರಶ್ನೆ 8. ಹಾಕಿದ ಎಷ್ಟು ದಿನಗಳ ನಂತರ ಈ ಫಲಿತಾಂಶ ಕಂಡಿತು?',
+  days_select:'ಆಯ್ಕೆಮಾಡಿ…', days_1_2:'1–2 ದಿನಗಳು', days_3_5:'3–5 ದಿನಗಳು', days_6_10:'6–10 ದಿನಗಳು', days_10plus:'10 ದಿನಗಳಿಗಿಂತ ಹೆಚ್ಚು',
+  modal_outcome:'ಫಲಿತಾಂಶ', modal_effectiveness:'ಪರಿಣಾಮ', modal_wouldrepeat:'ಮತ್ತೆ ಅನುಸರಿಸುವಿರಾ',
+  modal_notes:'ಟಿಪ್ಪಣಿಗಳು', modal_weather:'ಹವಾಮಾನ', modal_product:'ಬಳಸಿದ ಉತ್ಪನ್ನ', modal_days:'ಫಲಿತಾಂಶ ಬರಲು ದಿನಗಳು',
+  modal_stress:'ದಾಖಲಿಸಿದ ಸಮಯದ ಒತ್ತಡ ಮಟ್ಟ', modal_before:'ಮೊದಲು (ಡ್ಯಾಶ್‌ಬೋರ್ಡ್)', modal_after:'ನಂತರ (ಪರಿಶೀಲನೆ)',
+  btn_submit:'✅ ಅಭಿಪ್ರಾಯ ಸಲ್ಲಿಸಿ', log_privacy:'ನಿಮ್ಮ ಡೇಟಾ ಅನಾಮಧೇಯವಾಗಿ ಹಂಚಲಾಗುತ್ತದೆ.',
+  history_title:'ಸಲಹೆ ಇತಿಹಾಸ',
+  live_synced:'ಲೈವ್ · Firestore ಜೊತೆ ಸಿಂಕ್ ಆಗಿದೆ',
+  trend_title:'ಚೇತರಿಕೆ ಟ್ರೆಂಡ್', trend_sub:'ನಿಮ್ಮ ದಾಖಲಿಸಿದ ಫಲಿತಾಂಶಗಳ ಆಧಾರದ ಮೇಲೆ',
+  trend_empty:'ಇನ್ನೂ ಯಾವುದೇ ಫಲಿತಾಂಶ ದಾಖಲಾಗಿಲ್ಲ — ಟ್ರೆಂಡ್ ಪ್ರಾರಂಭಿಸಲು ಮೊದಲ ಫಲಿತಾಂಶ ದಾಖಲಿಸಿ.',
+  photo_compare_title:'ಮೊದಲು / ನಂತರ', photo_compare_sub:'ನಿಮ್ಮ ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಎಲೆ ಫೋಟೊಗಳಿಂದ',
+  photo_empty:'📷 ಇನ್ನೂ ಯಾವುದೇ ಫೋಟೊ ಇಲ್ಲ — ಮುಂದಿನ ಬಾರಿ ಸಲಹೆ ಪಡೆಯುವಾಗ ಎಲೆ ಫೋಟೊ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.',
+  history_loading:'ಲೈವ್ ಇತಿಹಾಸಕ್ಕೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ…',
+  th_date:'ದಿನಾಂಕ', th_plant:'ಬೆಳೆ', th_stress:'ಸಮಸ್ಯೆ', th_rec:'ಸಲಹೆ', th_outcome:'ಫಲಿತಾಂಶ', th_photo:'ಫೋಟೊ',
+  ht_hightemp:'ಹೆಚ್ಚು ತಾಪ', ht_rec1:'ಬೇರಿನ ಸುತ್ತ ಮಲ್ಚ್, ಮಧ್ಯಾಹ್ನ ನೆರಳು',
+  ht_rec2:'ಕ್ರಮ ಬೇಡ. ವಾರಕ್ಕೊಮ್ಮೆ ತೇವ ಪರಿಶೀಲಿಸಿ.',
+  ht_rec3:'ಬೆಳಿಗ್ಗೆ ಆಳವಾಗಿ ನೀರು, 2 ಲೀಟರ್',
+  ht_rec4:'ನೀರು ಕಡಿಮೆ ಮಾಡಿ, ಒಳಚರಂಡಿ ಸುಧಾರಿಸಿ',
+  stat_worked:'ಸಲಹೆ ಪರಿಣಾಮಕಾರಿ', stat_logs:'ಒಟ್ಟು ದಾಖಲಾತಿ', stat_photos:'ಫೋಟೊ ಅಪ್‌ಲೋಡ್',
+  cost_title:'ವೆಚ್ಚ ಅಂದಾಜು', cost_subtitle:'ಈ ವಾರ ನಿಮ್ಮ ಬೆಳೆಗಳಿಗೆ ಅಂದಾಜು ವೆಚ್ಚ.',
+  cost_tomato_hd:'ಟೊಮ್ಯಾಟೊ (ಜಮೀನು A)', cost_wheat_hd:'ಗೋಧಿ (ಜಮೀನು B)',
+  ci_mulch:'ಮಲ್ಚ್ / ಒಣಹುಲ್ಲು', ci_mulch_qty:'10 ಚ.ಮೀ.ಗೆ 5 ಕಿಲೋ',
+  ci_urea:'ಯೂರಿಯಾ ಗೊಬ್ಬರ', ci_urea_qty:'1 ಕಿಲೋ ಚೀಲ',
+  ci_neem:'ಬೇವಿನ ಎಣ್ಣೆ', ci_neem_qty:'100 ಮಿಲಿ ದ್ರಾವಣ',
+  ci_none:'ಒಳಹರಿವು ಅಗತ್ಯವಿಲ್ಲ', ci_healthy:'ಗಿಡ ಆರೋಗ್ಯಕರ',
+  cost_weekly:'ವಾರದ ವೆಚ್ಚ', cost_total_title:'ಒಟ್ಟು ಜಮೀನು ಬಜೆಟ್ — ಈ ವಾರ', cost_all_plots:'ಎಲ್ಲ ಜಮೀನು ಸೇರಿ',
+  btn_save_budget:'💾 ಬಜೆಟ್ ಉಳಿಸಿ', btn_share_wp:'📤 WhatsApp ನಲ್ಲಿ ಹಂಚಿ',
+  toast_saved:'📲 ಬಜೆಟ್ ಉಳಿಸಲಾಗಿದೆ!', toast_shared:'📤 ಹಂಚಲಾಗಿದೆ!',
+  toast_helpful:'✅ ಉಪಯುಕ್ತ ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ!', toast_copied:'📋 ನಕಲಿಸಲಾಗಿದೆ!',
+  toast_coming:'🌱 ಶೀಘ್ರದಲ್ಲಿ!', toast_submitted:'🎉 ಸಲ್ಲಿಸಲಾಗಿದೆ! ಧನ್ಯವಾದ, ರಮೇಶ್!',
+  ai_lang_code:'ಕನ್ನಡ',
+  loading_msgs:['ಸೆನ್ಸರ್ ಡೇಟಾ ವಿಶ್ಲೇಷಣೆ…','ತೇವ ಮತ್ತು ತಾಪ ವಿಶ್ಲೇಷಣೆ…','ಸಲಹೆ ತಯಾರಿ…','ಸಿದ್ಧವಾಗುತ್ತಿದೆ…'],
+  ai_refreshed:'🔄 ಹೊಸ ಸಲಹೆ', ai_thinking:'⏳ ಯೋಚಿಸುತ್ತಿದೆ…',
+  ai_meta_gen:'ಉತ್ಪಾದಿಸಲಾಗಿದೆ', ai_meta_live:'ನೇರ CropSense AI', toast_ai_ready:'🤖 ಸಲಹೆ ಸಿದ್ಧ!'
+},
+ta:{
+  nav_home:'🏠 டாஷ்போர்டு', nav_log:'📝 முடிவு பதிவு', nav_history:'📊 வரலாறு', nav_cost:'💰 செலவு',
+  nav_home_short:'முகப்பு', nav_log_short:'பதிவு', nav_history_short:'வரலாறு', nav_cost_short:'செலவு',
+  online:'நேரடி', farmer_name:'ரமேஷ்',
+  hero_greeting:'காலை வணக்கம், ரமேஷ்! 🌤️',
+  hero_subtitle_ok:'உங்கள் பயிர்கள் இப்போது ஆரோக்கியமாக உள்ளன.',
+  hero_subtitle_warn:'{n} சென்சார் அளவீடுகளுக்கு கவனம் தேவை.',
+  stat_sensors:'செயலில் சென்சார்கள்', stat_plants:'பயிர்கள் கண்காணிப்பு', stat_alerts:'இன்று எச்சரிக்கை',
+  select_plant:'பயிர் தேர்ந்தெடுக்கவும்',
+  plant_tomato:'தக்காளி (நிலம் A)', plant_wheat:'கோதுமை (நிலம் B)', plant_rice:'நெல் (நிலம் C)', plant_add:'பயிர் சேர்',
+  plant_tomato_short:'தக்காளி (நிலம் A)',
+  live_sensors:'நேரடி சென்சார் அளவீடுகள்',
+  s_moisture:'மண் ஈரப்பதம்', s_temp:'வெப்பநிலை', s_light:'ஒளி தீவிரம்', s_humidity:'காற்று ஈரப்பதம்',
+  s_optimal:'✓ சரியான அளவு', s_high_temp:'⚠ அதிக வெப்பம்', s_good_light:'✓ நல்ல ஒளி', s_normal:'ℹ சாதாரண',
+  s_low_moisture:'⚠ குறைந்த ஈரப்பதம்', s_overwatered:'⚠ அதிக நீர்?',
+  stress_title:'🧠 அழுத்த வகைப்பாடு', stress_sub:'ஆஃப்லைன் AI — ESP32',
+  stress_healthy:'✓ ஆரோக்கியம்', stress_based:'4 சென்சார் அடிப்படையில்:',
+  sc_over:'அதிக நீர்', sc_healthy:'ஆரோக்கியம் (இப்போது)', sc_under:'குறைந்த நீர்', sc_nutrient:'ஊட்டச்சத்து குறைபாடு',
+  sc_rootrot:'வேர் அழுகல் அபாயம்', sc_healthy_s:'ஆரோக்கியம்',
+  offline_note:'🔌 இணையம் இல்லாமல் செயல்படுகிறது',
+  absorption_title:'ஈரப்பத உறிஞ்சும் வேகம்', absorption_sub:'நீர் பாய்ச்சிய 60 நிமிடத்தில்',
+  abs_status:'உறிஞ்சல்: சாதாரண', abs_no_rot:'வேர் அழுகல் இல்லை', abs_gain:'ஈரப்பத அதிகரிப்பு',
+  ai_title:'AI பராமரிப்பு ஆலோசனை',
+  ai_card_title:'இன்றைய ஆலோசனை — தக்காளி (நிலம் A)',
+  ai_card_meta:'"AI ஆலோசனை பெறுக" அழுத்தவும் · CropSense AI',
+  ai_chip:'நேரடி AI',
+  ai_placeholder:'AI ஆலோசனை பெறுக அழுத்தவும் — Claude உங்கள் தரவை பகுப்பாய்வு செய்யும். 🌱',
+  ai_loading:'சென்சார் தரவு பகுப்பாய்வு…',
+  btn_get_advice:'✨ AI ஆலோசனை பெறுக', btn_helpful:'👍 பயனுள்ளது', btn_log_outcome:'📝 முடிவு பதிவு', btn_share:'📤 பகிர்',
+  alerts_title:'எச்சரிக்கைகள்',
+  alert1_title:'அதிக வெப்பநிலை கண்டறியப்பட்டது', alert1_body:'மண் 33°C ஐ தாண்டியது. நிழல் அல்லது மல்ச்சிங் செய்யவும்.', alert1_time:'இன்று, 07:42 AM',
+  alert2_title:'கோதுமை (நிலம் B) — ஆரோக்கியம்', alert2_body:'எல்லா அளவுகளும் சரி.', alert2_time:'இன்று, 06:00 AM',
+  alert3_title:'உறிஞ்சல் வேகம் சாதாரண', alert3_body:'வேர் அழுகல் பிரச்சினை இல்லை.', alert3_time:'நேற்று, 05:30 PM',
+  log_title:'📝 முடிவு பதிவு செய்க', log_subtitle:'ஆலோசனை பின்பற்றிய பிறகு என்ன நடந்தது — பதிவு செய்க. 🌍',
+  log_which_plant:'🌱 எந்த பயிர்?', log_date:'📅 ஆலோசனை தேதி',
+  log_outcome_label:'🌿 ஆலோசனை பின்பற்றிய பிறகு?',
+  oc_recovered:'✅ செடி குணமடைந்தது', oc_improving:'📈 மெதுவாக மேம்படுகிறது', oc_nochange:'😐 மாற்றமில்லை', oc_worse:'📉 மோசமானது',
+  log_notes:'💬 கூடுதல் குறிப்புகள் (விருப்பம்)', log_notes_ph:'எ.கா: உரம் இட்டேன்...',
+  log_photo:'📸 புகைப்படம் (விருப்பம்)', photo_tap:'புகைப்படம் எடுக்கவும் அல்லது கேலரியில் இருந்து தேர்வு',
+  log_weather:'🌦️ சமீபத்திய வானிலை?',
+  w_sunny:'வெயில்', w_rainy:'மழை', w_cloudy:'மேகம்', w_storm:'புயல்',
+  log_effectiveness_label:'⭐ கேள்வி 2. ஆலோசனை ஒட்டுமொத்தமாக எவ்வளவு பயனுள்ளதாக இருந்தது?',
+  eff_very:'மிகவும் பயனுள்ளது', eff_somewhat:'ஓரளவு பயனுள்ளது', eff_none:'பயனுள்ளதாக இல்லை',
+  log_wouldrepeat_label:'🔁 கேள்வி 3. இதே போன்ற பிரச்சனைக்கு மீண்டும் இந்த ஆலோசனையை பின்பற்றுவீர்களா?',
+  wr_yes:'ஆம்', wr_notsure:'உறுதியாக தெரியவில்லை', wr_no:'இல்லை',
+  log_product_label:'🧪 கேள்வி 7. நீங்கள் உண்மையில் எந்த பொருள்/மருந்தை பயன்படுத்தினீர்கள்?',
+  log_product_ph:'எ.கா: வேப்ப எண்ணெய் தெளிப்பு, காப்பர் பூஞ்சைக்கொல்லி...',
+  log_days_label:'📅 கேள்வி 8. பயன்படுத்திய எத்தனை நாட்களுக்குப் பிறகு இந்த முடிவைக் கண்டீர்கள்?',
+  days_select:'தேர்ந்தெடு…', days_1_2:'1–2 நாட்கள்', days_3_5:'3–5 நாட்கள்', days_6_10:'6–10 நாட்கள்', days_10plus:'10 நாட்களுக்கு மேல்',
+  modal_outcome:'முடிவு', modal_effectiveness:'செயல்திறன்', modal_wouldrepeat:'மீண்டும் பின்பற்றுவீர்களா',
+  modal_notes:'குறிப்புகள்', modal_weather:'வானிலை', modal_product:'பயன்படுத்திய பொருள்', modal_days:'முடிவு வர எடுத்த நாட்கள்',
+  modal_stress:'பதிவு செய்த நேரத்தில் அழுத்த நிலை', modal_before:'முன் (டாஷ்போர்டு)', modal_after:'பின் (மதிப்பாய்வு)',
+  btn_submit:'✅ கருத்தை சமர்ப்பிக்கவும்', log_privacy:'உங்கள் தரவு அனாமதேயமாக பகிரப்படும்.',
+  history_title:'ஆலோசனை வரலாறு',
+  live_synced:'லைவ் · Firestore உடன் ஒத்திசைவு',
+  trend_title:'மீட்பு போக்கு', trend_sub:'நீங்கள் பதிவு செய்த முடிவுகளின் அடிப்படையில்',
+  trend_empty:'இதுவரை எந்த முடிவும் பதிவு செய்யப்படவில்லை — போக்கைத் தொடங்க முதல் முடிவைப் பதிவு செய்யவும்.',
+  photo_compare_title:'முன் / பின்', photo_compare_sub:'நீங்கள் பதிவேற்றிய இலை புகைப்படங்களில் இருந்து',
+  photo_empty:'📷 இதுவரை புகைப்படங்கள் இல்லை — அடுத்த முறை ஆலோசனை பெறும்போது இலை புகைப்படத்தை பதிவேற்றவும்.',
+  history_loading:'லைவ் வரலாற்றுடன் இணைக்கிறது…',
+  th_date:'தேதி', th_plant:'பயிர்', th_stress:'பிரச்சினை', th_rec:'ஆலோசனை', th_outcome:'முடிவு', th_photo:'படம்',
+  ht_hightemp:'அதிக வெப்பம்', ht_rec1:'வேர் சுற்றில் மல்ச், மதியம் நிழல்',
+  ht_rec2:'நடவடிக்கை தேவையில்லை. வாரம் ஒருமுறை சரிபார்க்கவும்.',
+  ht_rec3:'காலையில் ஆழமாக நீர், 2 லிட்டர்',
+  ht_rec4:'நீர் குறைக்கவும், வடிகால் மேம்படுத்தவும்',
+  stat_worked:'ஆலோசனை பலனளித்தது', stat_logs:'மொத்த பதிவுகள்', stat_photos:'படங்கள் பதிவேற்றம்',
+  cost_title:'உள்ளீடு செலவு மதிப்பீடு', cost_subtitle:'இந்த வாரம் மதிப்பிடப்பட்ட செலவு.',
+  cost_tomato_hd:'தக்காளி (நிலம் A)', cost_wheat_hd:'கோதுமை (நிலம் B)',
+  ci_mulch:'மல்ச் / உலர் வைக்கோல்', ci_mulch_qty:'10 சதுர மீ க்கு 5 கிலோ',
+  ci_urea:'யூரியா உரம்', ci_urea_qty:'1 கிலோ பை',
+  ci_neem:'வேப்ப எண்ணெய்', ci_neem_qty:'100 மிலி கலந்தது',
+  ci_none:'உள்ளீடு தேவையில்லை', ci_healthy:'செடி ஆரோக்கியம்',
+  cost_weekly:'வார செலவு', cost_total_title:'மொத்த பண்ணை பட்ஜெட் — இந்த வாரம்', cost_all_plots:'அனைத்து நிலங்களும்',
+  btn_save_budget:'💾 பட்ஜெட் சேமிக்கவும்', btn_share_wp:'📤 WhatsApp ல் பகிரவும்',
+  toast_saved:'📲 சேமிக்கப்பட்டது!', toast_shared:'📤 பகிரப்பட்டது!',
+  toast_helpful:'✅ பயனுள்ளதாக குறிக்கப்பட்டது!', toast_copied:'📋 நகலெடுக்கப்பட்டது!',
+  toast_coming:'🌱 விரைவில் வருகிறது!', toast_submitted:'🎉 சமர்ப்பிக்கப்பட்டது! நன்றி, ரமேஷ்!',
+  ai_lang_code:'தமிழ்',
+  loading_msgs:['சென்சார் தரவு பகுப்பாய்வு…','ஈரப்பதம் மற்றும் வெப்பம் பகுப்பாய்வு…','ஆலோசனை தயாரிக்கிறது…','கிட்டத்தட்ட தயார்…'],
+  ai_refreshed:'🔄 புதிய ஆலோசனை', ai_thinking:'⏳ யோசிக்கிறது…',
+  ai_meta_gen:'உருவாக்கப்பட்டது', ai_meta_live:'நேரடி CropSense AI', toast_ai_ready:'🤖 ஆலோசனை தயார்!'
+},
+te:{
+  nav_home:'🏠 డాష్‌బోర్డ్', nav_log:'📝 ఫలితం నమోదు', nav_history:'📊 చరిత్ర', nav_cost:'💰 ఖర్చు',
+  nav_home_short:'హోమ్', nav_log_short:'నమోదు', nav_history_short:'చరిత్ర', nav_cost_short:'ఖర్చు',
+  online:'ఆన్‌లైన్', farmer_name:'రమేష్',
+  hero_greeting:'శుభోదయం, రమేష్! 🌤️',
+  hero_subtitle_ok:'మీ పంటలు ఇప్పుడు ఆరోగ్యంగా ఉన్నాయి.',
+  hero_subtitle_warn:'{n} సెన్సార్ రీడింగులకు శ్రద్ధ అవసరం.',
+  stat_sensors:'సెన్సర్లు క్రియాశీలం', stat_plants:'పంటలు ట్రాక్', stat_alerts:'నేటి హెచ్చరిక',
+  select_plant:'పంట ఎంచుకోండి',
+  plant_tomato:'టొమాటో (పొలం A)', plant_wheat:'గోధుమ (పొలం B)', plant_rice:'వరి (పొలం C)', plant_add:'పంట జోడించు',
+  plant_tomato_short:'టొమాటో (పొలం A)',
+  live_sensors:'నేరుగా సెన్సార్ రీడింగులు',
+  s_moisture:'నేల తేమ', s_temp:'ఉష్ణోగ్రత', s_light:'కాంతి తీవ్రత', s_humidity:'గాలి తేమ',
+  s_optimal:'✓ సరైన స్థాయి', s_high_temp:'⚠ అధిక వేడి', s_good_light:'✓ మంచి కాంతి', s_normal:'ℹ సాధారణ',
+  s_low_moisture:'⚠ తక్కువ తేమ', s_overwatered:'⚠ ఎక్కువ నీరు?',
+  stress_title:'🧠 ఒత్తిడి వర్గీకరణ', stress_sub:'ఆఫ్‌లైన్ AI — ESP32',
+  stress_healthy:'✓ ఆరోగ్యంగా', stress_based:'4 సెన్సర్ ఆధారంగా:',
+  sc_over:'ఎక్కువ నీరు', sc_healthy:'ఆరోగ్యం (ఇప్పుడు)', sc_under:'తక్కువ నీరు', sc_nutrient:'పోషకాల లోపం',
+  sc_rootrot:'వేరు కుళ్ళు ప్రమాదం', sc_healthy_s:'ఆరోగ్యం',
+  offline_note:'🔌 ఇంటర్నెట్ లేకుండా పని చేస్తుంది',
+  absorption_title:'తేమ శోషణ రేటు', absorption_sub:'నీరు పోసిన 60 నిమిషాల్లో',
+  abs_status:'శోషణ: సాధారణ', abs_no_rot:'వేరు కుళ్ళు లేదు', abs_gain:'తేమ పెరుగుదల',
+  ai_title:'AI సంరక్షణ సలహా',
+  ai_card_title:'నేటి సలహా — టొమాటో (పొలం A)',
+  ai_card_meta:'"AI సలహా తీసుకోండి" నొక్కండి · CropSense AI',
+  ai_chip:'నేరుగా AI',
+  ai_placeholder:'AI సలహా తీసుకోండి నొక్కండి — Claude మీ డేటాను విశ్లేషిస్తుంది. 🌱',
+  ai_loading:'సెన్సర్ డేటా విశ్లేషణ…',
+  btn_get_advice:'✨ AI సలహా తీసుకోండి', btn_helpful:'👍 ఉపయోగకరం', btn_log_outcome:'📝 ఫలితం నమోదు', btn_share:'📤 పంచుకోండి',
+  alerts_title:'హెచ్చరికలు',
+  alert1_title:'అధిక ఉష్ణోగ్రత గుర్తించబడింది', alert1_body:'నేల 33°C దాటింది. నీడ లేదా మల్చింగ్ చేయండి.', alert1_time:'ఈరోజు, 07:42 AM',
+  alert2_title:'గోధుమ (పొలం B) — ఆరోగ్యం', alert2_body:'అన్ని విలువలు సరిగ్గా ఉన్నాయి.', alert2_time:'ఈరోజు, 06:00 AM',
+  alert3_title:'శోషణ రేటు సాధారణ', alert3_body:'పొలం A లో వేరు కుళ్ళు లేదు.', alert3_time:'నిన్న, 05:30 PM',
+  log_title:'📝 ఫలితం నమోదు చేయండి', log_subtitle:'సలహా అనుసరించిన తర్వాత ఏమైందో నమోదు చేయండి. 🌍',
+  log_which_plant:'🌱 ఏ పంట?', log_date:'📅 సలహా తేదీ',
+  log_outcome_label:'🌿 సలహా అనుసరించిన తర్వాత?',
+  oc_recovered:'✅ మొక్క కోలుకుంది', oc_improving:'📈 మెరుగవుతోంది', oc_nochange:'😐 మార్పు లేదు', oc_worse:'📉 మోసమానింది',
+  log_notes:'💬 అదనపు గమనికలు (ఐచ్ఛికం)', log_notes_ph:'ఉదా: కంపోస్ట్ వేశాను...',
+  log_photo:'📸 ఫోటో అప్‌లోడ్ (ఐచ్ఛికం)', photo_tap:'ఫోటో తీయండి లేదా గ్యాలరీ నుండి ఎంచుకోండి',
+  log_weather:'🌦️ ఇటీవలి వాతావరణం?',
+  w_sunny:'ఎండ', w_rainy:'వర్షం', w_cloudy:'మేఘాలు', w_storm:'తుపాను',
+  log_effectiveness_label:'⭐ ప్రశ్న 2. సలహా మొత్తంగా ఎంత ప్రభావవంతంగా ఉంది?',
+  eff_very:'చాలా ప్రభావవంతం', eff_somewhat:'కొంతవరకు ప్రభావవంతం', eff_none:'ప్రభావవంతం కాదు',
+  log_wouldrepeat_label:'🔁 ప్రశ్న 3. ఇలాంటి సమస్యకు మళ్లీ ఈ సలహాను పాటిస్తారా?',
+  wr_yes:'అవును', wr_notsure:'ఖచ్చితంగా తెలియదు', wr_no:'లేదు',
+  log_product_label:'🧪 ప్రశ్న 7. మీరు నిజంగా ఏ ఉత్పత్తి/పరిష్కారం ఉపయోగించారు?',
+  log_product_ph:'ఉదా: వేప నూనె స్ప్రే, కాపర్ ఫంగిసైడ్...',
+  log_days_label:'📅 ప్రశ్న 8. వేసిన ఎన్ని రోజుల తర్వాత ఈ ఫలితం కనిపించింది?',
+  days_select:'ఎంచుకోండి…', days_1_2:'1–2 రోజులు', days_3_5:'3–5 రోజులు', days_6_10:'6–10 రోజులు', days_10plus:'10 రోజుల కంటే ఎక్కువ',
+  modal_outcome:'ఫలితం', modal_effectiveness:'ప్రభావం', modal_wouldrepeat:'మళ్లీ పాటిస్తారా',
+  modal_notes:'గమనికలు', modal_weather:'వాతావరణం', modal_product:'ఉపయోగించిన ఉత్పత్తి', modal_days:'ఫలితం రావడానికి పట్టిన రోజులు',
+  modal_stress:'నమోదు చేసిన సమయంలో ఒత్తిడి స్థాయి', modal_before:'ముందు (డాష్‌బోర్డ్)', modal_after:'తర్వాత (సమీక్ష)',
+  btn_submit:'✅ అభిప్రాయం సమర్పించు', log_privacy:'మీ డేటా అనామమైన పద్ధతిలో పంచుకోబడుతుంది.',
+  history_title:'సలహా చరిత్ర',
+  live_synced:'లైవ్ · Firestore తో సింక్ అయింది',
+  trend_title:'కోలుకునే ధోరణి', trend_sub:'మీరు నమోదు చేసిన ఫలితాల ఆధారంగా',
+  trend_empty:'ఇంకా ఏ ఫలితం నమోదు కాలేదు — ధోరణిని ప్రారంభించడానికి మీ మొదటి ఫలితాన్ని నమోదు చేయండి.',
+  photo_compare_title:'ముందు / తర్వాత', photo_compare_sub:'మీరు అప్‌లోడ్ చేసిన ఆకు ఫోటోల నుండి',
+  photo_empty:'📷 ఇంకా ఫోటోలు లేవు — తదుపరిసారి సలహా తీసుకునేటప్పుడు ఆకు ఫోటో అప్‌లోడ్ చేయండి.',
+  history_loading:'లైవ్ చరిత్రకు కనెక్ట్ అవుతోంది…',
+  th_date:'తేదీ', th_plant:'పంట', th_stress:'సమస్య', th_rec:'సలహా', th_outcome:'ఫలితం', th_photo:'ఫోటో',
+  ht_hightemp:'అధిక వేడి', ht_rec1:'వేర్ల చుట్టూ మల్చ్, మధ్యాహ్నం నీడ',
+  ht_rec2:'చర్య అవసరం లేదు. వారానికి ఒకసారి పరిశీలించండి.',
+  ht_rec3:'ఉదయం లోతుగా నీరు, 2 లీటర్లు',
+  ht_rec4:'నీరు తగ్గించండి, నీటి పారుదల మెరుగుపరచండి',
+  stat_worked:'సలహాలు ఫలించాయి', stat_logs:'మొత్తం నమోదులు', stat_photos:'ఫోటోలు అప్‌లోడ్',
+  cost_title:'ఇన్‌పుట్ ఖర్చు అంచనా', cost_subtitle:'ఈ వారం అంచనా ఖర్చు.',
+  cost_tomato_hd:'టొమాటో (పొలం A)', cost_wheat_hd:'గోధుమ (పొలం B)',
+  ci_mulch:'మల్చ్ / ఎండు గడ్డి', ci_mulch_qty:'10 చ.మీ.కి 5 కిలో',
+  ci_urea:'యూరియా ఎరువు', ci_urea_qty:'1 కిలో బ్యాగ్',
+  ci_neem:'వేప నూనె స్ప్రే', ci_neem_qty:'100 మి.లీ.',
+  ci_none:'ఇన్‌పుట్ అవసరం లేదు', ci_healthy:'మొక్క ఆరోగ్యంగా ఉంది',
+  cost_weekly:'వారపు ఖర్చు', cost_total_title:'మొత్తం వ్యవసాయ బడ్జెట్ — ఈ వారం', cost_all_plots:'అన్ని పొలాలు కలిపి',
+  btn_save_budget:'💾 బడ్జెట్ సేవ్ చేయి', btn_share_wp:'📤 WhatsApp లో పంచు',
+  toast_saved:'📲 సేవ్ అయింది!', toast_shared:'📤 పంచబడింది!',
+  toast_helpful:'✅ ఉపయోగకరంగా గుర్తించబడింది!', toast_copied:'📋 కాపీ అయింది!',
+  toast_coming:'🌱 త్వరలో వస్తుంది!', toast_submitted:'🎉 సమర్పించబడింది! ధన్యవాదాలు, రమేష్!',
+  ai_lang_code:'తెలుగు',
+  loading_msgs:['సెన్సర్ డేటా విశ్లేషణ…','తేమ మరియు వేడి విశ్లేషణ…','సలహా తయారవుతోంది…','దాదాపు సిద్ధం…'],
+  ai_refreshed:'🔄 కొత్త సలహా', ai_thinking:'⏳ ఆలోచిస్తోంది…',
+  ai_meta_gen:'ఉత్పత్తి అయింది', ai_meta_live:'నేరుగా CropSense AI', toast_ai_ready:'🤖 సలహా సిద్ధం!'
+}
+};
+
+let currentLang = 'en';
+function T(k){ return (TRANSLATIONS[currentLang]||TRANSLATIONS.en)[k] || TRANSLATIONS.en[k] || k; }
+
+function setLang(lang){
+  currentLang = lang;
+  document.body.className = lang === 'en' ? '' : 'lang-' + lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const map = {en:'EN',hi:'हि',kn:'ಕ',ta:'த',te:'తె'};
+    b.classList.toggle('active', b.textContent.trim() === map[lang]);
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = T(el.getAttribute('data-i18n'));
+    if(v) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const v = T(el.getAttribute('data-i18n-placeholder'));
+    if(v) el.placeholder = v;
+  });
+  // reset AI placeholder if not showing result
+  if(document.getElementById('btn-helpful').style.display === 'none'){
+    const ph = document.getElementById('ai-placeholder');
+    if(ph) ph.textContent = T('ai_placeholder');
+  }
+  // Re-render hero subtitle (it's dynamic, not static data-i18n) in the new language
+  if (typeof refreshAlerts === 'function') refreshAlerts();
+}
+
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const idx = {dashboard:0, log:1, history:2, cost:3}[page];
+  document.querySelectorAll('.topbar-nav button').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.querySelectorAll('.mobile-nav-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  window.scrollTo(0,0);
+}
+
+const sensorState = { plant:'Tomato', plot:'Plot A', moisture:62, temp:34, light:71, humidity:58, stressClass:'Healthy', absorptionRate:'Normal' };
+const plantProfiles = {
+  tomato:{plant:'Tomato',plot:'Plot A',moisture:62,temp:34,light:71,humidity:58,stressClass:'Healthy',absorptionRate:'Normal'},
+};
+
+function selectPlant(el, plant){
+  // single plant — no switching needed
+}
+
+// ── Leaf photo state ──
+let leafPhotoBase64 = null;
+
+function handleLeafPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    leafPhotoBase64 = ev.target.result.split(',')[1]; // base64 only
+    window._leafPhotoFullDataURL = ev.target.result; // full data URL, used as "before" photo in logs
+    const wrap = document.getElementById('leaf-preview-wrap');
+    document.getElementById('leaf-preview-img').src = ev.target.result;
+    wrap.style.display = 'flex';
+    const empty = document.getElementById('leaf-upload-empty');
+    if (empty) empty.style.display = 'none';
+  };
+  r.readAsDataURL(file);
+}
+
+function clearLeafPhoto() {
+  leafPhotoBase64 = null;
+  window._leafPhotoFullDataURL = null;
+  document.getElementById('leaf-photo-input').value = '';
+  document.getElementById('leaf-preview-wrap').style.display = 'none';
+  const empty = document.getElementById('leaf-upload-empty');
+  if (empty) empty.style.display = 'flex';
+}
+
+// ── Threshold-based instant alerts ──
+function generateThresholdAlerts(s) {
+  const alerts = [];
+  const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+  if (s.temp > 35)
+    alerts.push({ type:'warn', emoji:'🌡️', title:'High Temperature Alert', body:`Temperature is ${s.temp}°C — above 35°C threshold. Shade the plant and mulch the soil to reduce heat stress.`, time: now });
+  else if (s.temp < 15)
+    alerts.push({ type:'warn', emoji:'❄️', title:'Low Temperature Alert', body:`Temperature is ${s.temp}°C — too cold for tomatoes. Cover the plant at night to prevent frost damage.`, time: now });
+
+  if (s.moisture < 35)
+    alerts.push({ type:'warn', emoji:'💧', title:'Low Soil Moisture', body:`Moisture at ${s.moisture}% — below safe 35% threshold. Water the plant immediately, preferably in the morning.`, time: now });
+  else if (s.moisture > 85)
+    alerts.push({ type:'warn', emoji:'🌊', title:'Soil Overwatered', body:`Moisture at ${s.moisture}% — risk of root rot. Stop watering and check drainage around the plant.`, time: now });
+
+  if (s.humidity > 80)
+    alerts.push({ type:'warn', emoji:'🌫️', title:'High Humidity Warning', body:`Air humidity at ${s.humidity}% — fungal disease risk is high. Ensure good airflow around plants.`, time: now });
+
+  if (s.light < 30)
+    alerts.push({ type:'warn', emoji:'🌑', title:'Low Light Intensity', body:`Light at ${s.light}% — tomatoes need more sunlight. Remove obstructions or consider grow lighting.`, time: now });
+
+  // All-clear if nothing is wrong
+  if (alerts.length === 0)
+    alerts.push({ type:'good', emoji:'✅', title:'All Readings Normal', body:`Moisture ${s.moisture}%, Temp ${s.temp}°C, Light ${s.light}%, Humidity ${s.humidity}% — all within healthy range for tomatoes.`, time: now });
+
+  return alerts;
+}
+
+function renderAlerts(thresholdAlerts, aiAlerts = []) {
+  const stack = document.getElementById('alerts-stack');
+  const badge = document.getElementById('alerts-count-badge');
+  const all = [...thresholdAlerts, ...aiAlerts];
+  badge.textContent = all.length + ' Today';
+  stack.innerHTML = all.map(a => `
+    <div class="alert-item type-${a.type}">
+      <span class="alert-emoji">${a.emoji}</span>
+      <div class="alert-content">
+        <strong>${a.title}</strong>
+        <p>${a.body}</p>
+        <div class="alert-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // ── Hero stats: only count alerts that are actually concerning ──
+  // (generateThresholdAlerts always returns at least one "all clear" item
+  // when nothing is wrong, so we filter to type:'warn' specifically)
+  const concerning = all.filter(a => a.type === 'warn').length;
+  const heroVal = document.getElementById('hero-alert-val');
+  const heroSub = document.getElementById('hero-subtitle');
+
+  if (heroVal) {
+    heroVal.textContent = concerning;
+    heroVal.style.color = concerning > 0 ? 'var(--amber-500)' : 'var(--green-400)';
+  }
+  if (heroSub) {
+    heroSub.textContent = concerning === 0
+      ? T('hero_subtitle_ok')
+      : T('hero_subtitle_warn').replace('{n}', concerning).replace('{s}', concerning === 1 ? '' : 's');
+  }
+}
+
+// Run threshold alerts whenever sensorState updates
+function refreshAlerts() {
+  const threshold = generateThresholdAlerts(sensorState);
+  renderAlerts(threshold, window._lastAiAlerts || []);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CROPSENSE OFFLINE ADVICE ENGINE
+// No API needed — fully personalised advice from disease + sensors
+// ═══════════════════════════════════════════════════════════════
+
+// ── Product recommendations per disease (with prices) ──────────
+window.PRODUCTS = {
+  'Tomato_Early_blight': [
+    { name:'Copper Oxychloride Fungicide (500g)', price:'₹180–₹220', where:'Krishi Kendra / Online (BigHaat)', use:'Mix 3g per litre water, spray on leaves every 10 days' },
+    { name:'Mancozeb 75% WP (500g)', price:'₹120–₹160', where:'Local agri shop / BigHaat', use:'Apply 2.5g per litre, early morning spray' },
+    { name:'Neem Oil Spray (500ml)', price:'₹80–₹120', where:'Organic shops / Amazon', use:'Dilute 5ml per litre, spray weekly as preventive' },
+  ],
+  'Tomato_Late_blight': [
+    { name:'Metalaxyl + Mancozeb (500g)', price:'₹250–₹320', where:'Krishi Kendra / BigHaat', use:'2.5g per litre water, spray every 7 days' },
+    { name:'Cymoxanil 8% + Mancozeb 64% WP', price:'₹300–₹380', where:'Local agri dealer', use:'Apply at first sign of disease, repeat in 5 days' },
+    { name:'Trichoderma viride (bio-fungicide)', price:'₹150–₹200', where:'Organic agri store', use:'Mix in soil near roots, preventive use only' },
+  ],
+  'Tomato_Bacterial_spot': [
+    { name:'Copper Hydroxide (500g)', price:'₹200–₹260', where:'Krishi Kendra', use:'3g per litre, avoid spraying in rain' },
+    { name:'Streptomycin Sulphate (100g)', price:'₹90–₹130', where:'Licensed agri shop only', use:'0.5g per litre, apply in cool morning hours' },
+  ],
+  'Tomato_Septoria_leaf_spot': [
+    { name:'Chlorothalonil 75% WP (250g)', price:'₹110–₹150', where:'Agri shop / BigHaat', use:'2g per litre, spray from below the leaf' },
+    { name:'Mancozeb 75% WP (500g)', price:'₹120–₹160', where:'Local agri shop', use:'2.5g per litre, weekly spray' },
+  ],
+  'Tomato_Spider_mites_Two_spotted_spider_mite': [
+    { name:'Abamectin 1.8% EC (100ml)', price:'₹180–₹230', where:'Licensed agri dealer', use:'1ml per litre, spray under leaf surface' },
+    { name:'Neem Oil (500ml)', price:'₹80–₹120', where:'Organic shops / Amazon', use:'5ml per litre, weekly spray under leaves' },
+    { name:'Sulfur 80% WP Wettable (500g)', price:'₹90–₹120', where:'Krishi Kendra', use:'3g per litre, avoid in >35°C heat' },
+  ],
+  'Tomato__Tomato_YellowLeaf__Curl_Virus': [
+    { name:'Imidacloprid 17.8% SL (100ml)', price:'₹160–₹200', where:'Licensed agri shop', use:'0.5ml per litre — kills whitefly that spreads the virus' },
+    { name:'Yellow Sticky Traps (10 pack)', price:'₹80–₹120', where:'Online / BigHaat', use:'Place 1 trap per 10 sqm to catch whiteflies' },
+    { name:'Reflective Mulch Film', price:'₹200–₹300 per roll', where:'Agri supply shops', use:'Lay around plants — repels whiteflies' },
+  ],
+  'Tomato_Leaf_Mold': [
+    { name:'Hexaconazole 5% EC (250ml)', price:'₹130–₹180', where:'Krishi Kendra / agri dealer', use:'2ml per litre, spray inside canopy' },
+    { name:'Propiconazole 25% EC (250ml)', price:'₹200–₹260', where:'Licensed agri shop', use:'1ml per litre, apply every 14 days' },
+  ],
+  'Tomato__Target_Spot': [
+    { name:'Azoxystrobin 23% SC (100ml)', price:'₹280–₹350', where:'BigHaat / agri shop', use:'1ml per litre, max 2 sprays per season' },
+    { name:'Mancozeb 75% WP (500g)', price:'₹120–₹160', where:'Local agri shop', use:'2.5g per litre, spray every 10 days' },
+  ],
+  'Tomato__Tomato_mosaic_virus': [
+    { name:'Imidacloprid 17.8% SL (100ml)', price:'₹160–₹200', where:'Licensed agri shop', use:'Kills aphids that spread the virus' },
+    { name:'Potassium-based Foliar Spray', price:'₹100–₹150', where:'Agri shop / online', use:'Boosts plant immunity, apply weekly' },
+  ],
+  'Tomato_healthy': [
+    { name:'NPK 19:19:19 Fertiliser (1kg)', price:'₹80–₹120', where:'Krishi Kendra / online', use:'5g per litre, foliar spray every 2 weeks' },
+    { name:'Calcium + Boron Micronutrient', price:'₹90–₹130', where:'Agri shop', use:'Prevents blossom end rot, apply during flowering' },
+  ],
+};
+
+// ── Advice per disease in all languages ──────────────────────────
+const DISEASE_ADVICE = {
+  'Tomato_Early_blight': {
+    en: (s) => {
+      const lines = [];
+      lines.push(`🔬 Disease Detected: Early Blight (Alternaria solani) — This is a fungal disease causing dark brown spots with yellow rings on older leaves.`);
+      if (s.humidity > 70) lines.push(`🌫️ Your humidity is ${s.humidity}% — this is dangerously high for fungal spread. Early blight thrives in humid conditions; act immediately before it spreads to the entire plant.`);
+      else lines.push(`🌫️ Humidity is ${s.humidity}% — manageable, but monitor closely as any rain will accelerate fungal spread.`);
+      if (s.moisture < 35) lines.push(`💧 Soil moisture is very low at ${s.moisture}%. A water-stressed plant cannot fight disease effectively — water deeply at the base this morning, but never wet the leaves.`);
+      else if (s.moisture > 75) lines.push(`💧 Soil moisture is high at ${s.moisture}% — reduce watering immediately as excess moisture worsens fungal conditions.`);
+      else lines.push(`💧 Soil moisture at ${s.moisture}% is acceptable. Continue drip or base watering only — never overhead.`);
+      if (s.temp > 35) lines.push(`🌡️ Temperature is ${s.temp}°C — extreme heat combined with early blight weakens your plant fast. Add mulch around the base to cool the roots.`);
+      else lines.push(`🌡️ Temperature at ${s.temp}°C is within manageable range for treatment.`);
+      lines.push(`✅ Action for TODAY: Remove all infected lower leaves by hand (wear gloves), dispose of them away from the field — do not compost. Then spray copper oxychloride (3g per litre) on the remaining leaves, coating the underside too. Repeat in 10 days.`);
+      return lines.join('<br><br>');
+    },
+    hi: (s) => {
+      const lines = [];
+      lines.push(`🔬 रोग पहचाना: अर्ली ब्लाइट (Alternaria solani) — यह एक फंगल बीमारी है जिसमें पुरानी पत्तियों पर पीले घेरे वाले काले-भूरे धब्बे बनते हैं।`);
+      if (s.humidity > 70) lines.push(`🌫️ नमी ${s.humidity}% है — यह फंगल फैलाव के लिए बहुत खतरनाक है। तुरंत कार्रवाई करें।`);
+      else lines.push(`🌫️ नमी ${s.humidity}% है — ध्यान रखें, बारिश होने पर फंगस तेज़ी से फैल सकता है।`);
+      if (s.moisture < 35) lines.push(`💧 मिट्टी की नमी ${s.moisture}% — बहुत कम है। सुबह पौधे की जड़ में पानी दें, पत्तियों पर नहीं।`);
+      else lines.push(`💧 मिट्टी की नमी ${s.moisture}% ठीक है। ड्रिप या जड़ में ही पानी दें।`);
+      if (s.temp > 35) lines.push(`🌡️ तापमान ${s.temp}°C — अत्यधिक गर्मी में रोग और तेज़ी से फैलता है। जड़ के पास मल्चिंग करें।`);
+      else lines.push(`🌡️ तापमान ${s.temp}°C — उपचार के लिए ठीक है।`);
+      lines.push(`✅ आज का काम: दस्ताने पहनकर सभी संक्रमित पत्तियां तोड़ें और खेत से दूर फेंकें। फिर कॉपर ऑक्सीक्लोराइड (3g प्रति लीटर पानी) का छिड़काव पत्तियों के नीचे तक करें। 10 दिन बाद दोहराएं।`);
+      return lines.join('<br><br>');
+    },
+    kn: (s) => {
+      const lines = [];
+      lines.push(`🔬 ರೋಗ ಪತ್ತೆ: ಅರ್ಲಿ ಬ್ಲೈಟ್ (Alternaria solani) — ಹಳೆಯ ಎಲೆಗಳಲ್ಲಿ ಹಳದಿ ಉಂಗುರದೊಂದಿಗೆ ಕಂದು-ಕಪ್ಪು ಚುಕ್ಕೆಗಳು ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ.`);
+      if (s.humidity > 70) lines.push(`🌫️ ತೇವಾಂಶ ${s.humidity}% — ಶಿಲೀಂಧ್ರ ಹರಡಲು ಅತ್ಯಂತ ಅನುಕೂಲ. ತಕ್ಷಣ ಕ್ರಮ ತೆಗೆದುಕೊಳ್ಳಿ.`);
+      else lines.push(`🌫️ ತೇವಾಂಶ ${s.humidity}% — ಮಳೆ ಬಂದರೆ ಶಿಲೀಂಧ್ರ ವೇಗವಾಗಿ ಹರಡಬಹುದು.`);
+      if (s.moisture < 35) lines.push(`💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% — ತುಂಬಾ ಕಡಿಮೆ. ಬೆಳಿಗ್ಗೆ ಬೇರಿನ ಬಳಿ ನೀರು ಹಾಕಿ.`);
+      else lines.push(`💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% ಸರಿಯಾಗಿದೆ.`);
+      if (s.temp > 35) lines.push(`🌡️ ತಾಪಮಾನ ${s.temp}°C — ತುಂಬಾ ಹೆಚ್ಚು. ಮಲ್ಚಿಂಗ್ ಮಾಡಿ.`);
+      else lines.push(`🌡️ ತಾಪಮಾನ ${s.temp}°C — ಚಿಕಿತ್ಸೆಗೆ ಸರಿಯಾಗಿದೆ.`);
+      lines.push(`✅ ಇಂದಿನ ಕೆಲಸ: ಕೈಗವಸು ಹಾಕಿ ಸೋಂಕಿತ ಎಲೆಗಳನ್ನು ತೆಗೆದು ಹೊಲದಿಂದ ದೂರ ಎಸೆಯಿರಿ. ನಂತರ ಕಾಪರ್ ಆಕ್ಸಿಕ್ಲೋರೈಡ್ (3g ಪ್ರತಿ ಲೀಟರ್) ಎಲೆಗಳ ಕೆಳಗೂ ಸಿಂಪಡಿಸಿ. 10 ದಿನಗಳ ನಂತರ ಪುನರಾವರ್ತಿಸಿ.`);
+      return lines.join('<br><br>');
+    },
+    ta: (s) => {
+      const lines = [];
+      lines.push(`🔬 நோய் கண்டறியப்பட்டது: எர்லி ப்ளைட் (Alternaria solani) — பழைய இலைகளில் மஞ்சள் வளையத்துடன் கருப்பு-பழுப்பு புள்ளிகள் தோன்றும்.`);
+      if (s.humidity > 70) lines.push(`🌫️ ஈரப்பதம் ${s.humidity}% — பூஞ்சை பரவுவதற்கு மிகவும் ஆபத்தான நிலை. உடனடியாக நடவடிக்கை எடுக்கவும்.`);
+      else lines.push(`🌫️ ஈரப்பதம் ${s.humidity}% — மழை வந்தால் பூஞ்சை வேகமாக பரவும், கவனமாக இருங்கள்.`);
+      if (s.moisture < 35) lines.push(`💧 மண் ஈரப்பதம் ${s.moisture}% — மிகவும் குறைவு. காலையில் வேரின் அருகில் நீர் பாய்ச்சவும்.`);
+      else lines.push(`💧 மண் ஈரப்பதம் ${s.moisture}% சரியாக உள்ளது.`);
+      if (s.temp > 35) lines.push(`🌡️ வெப்பநிலை ${s.temp}°C — மிக அதிகம். வேரின் அருகில் மல்ச்சிங் செய்யவும்.`);
+      else lines.push(`🌡️ வெப்பநிலை ${s.temp}°C — சிகிச்சைக்கு ஏற்றது.`);
+      lines.push(`✅ இன்றைய வேலை: கையுறை அணிந்து தொற்று பட்ட இலைகளை பறித்து வயலுக்கு வெளியே போடவும். பின் காப்பர் ஆக்சிக்லோரைட் (3g/லிட்டர்) இலைகளின் அடியிலும் தெளிக்கவும். 10 நாளில் மீண்டும் தெளிக்கவும்.`);
+      return lines.join('<br><br>');
+    },
+    te: (s) => {
+      const lines = [];
+      lines.push(`🔬 వ్యాధి గుర్తించబడింది: ఎర్లీ బ్లైట్ (Alternaria solani) — పాత ఆకులపై పసుపు వలయంతో గోధుమ-నల్ల మచ్చలు కనిపిస్తాయి.`);
+      if (s.humidity > 70) lines.push(`🌫️ తేమ ${s.humidity}% — శిలీంధ్రం వ్యాపించడానికి చాలా అనుకూలంగా ఉంది. వెంటనే చర్య తీసుకోండి.`);
+      else lines.push(`🌫️ తేమ ${s.humidity}% — వర్షం వస్తే శిలీంధ్రం వేగంగా వ్యాపిస్తుంది, జాగ్రత్తగా ఉండండి.`);
+      if (s.moisture < 35) lines.push(`💧 నేల తేమ ${s.moisture}% — చాలా తక్కువ. ఉదయం వేళ మొక్క మొదట్లో నీరు పోయండి.`);
+      else lines.push(`💧 నేల తేమ ${s.moisture}% సరిగ్గా ఉంది.`);
+      if (s.temp > 35) lines.push(`🌡️ ఉష్ణోగ్రత ${s.temp}°C — చాలా ఎక్కువ. మొక్క చుట్టూ మల్చింగ్ చేయండి.`);
+      else lines.push(`🌡️ ఉష్ణోగ్రత ${s.temp}°C — చికిత్సకు అనుకూలంగా ఉంది.`);
+      lines.push(`✅ ఈరోజు చేయవలసింది: గ్లవ్స్ వేసుకుని సోకిన ఆకులను తీసి పొలానికి దూరంగా వేయండి. తర్వాత కాపర్ ఆక్సీక్లోరైడ్ (3g/లీటరు) ఆకుల అడుగు భాగంపై కూడా పిచికారి చేయండి. 10 రోజుల తర్వాత మళ్ళీ చేయండి.`);
+      return lines.join('<br><br>');
+    },
+  },
+  'Tomato_healthy': {
+    en: (s) => {
+      const lines = [];
+      lines.push(`✅ Great news, Ramesh! Your tomato plant looks healthy — no disease detected in the leaf scan.`);
+      if (s.moisture < 35) lines.push(`💧 Soil moisture is low at ${s.moisture}%. Even healthy plants need consistent water — irrigate at the base this morning to bring moisture above 40%.`);
+      else if (s.moisture > 80) lines.push(`💧 Soil moisture is quite high at ${s.moisture}%. Reduce watering for 2–3 days to prevent root rot — the roots need oxygen too.`);
+      else lines.push(`💧 Soil moisture at ${s.moisture}% is in a healthy range. Continue your current watering schedule.`);
+      if (s.temp > 35) lines.push(`🌡️ Temperature at ${s.temp}°C is stressful for tomatoes even when healthy. Add mulch around the base and consider afternoon shading to prevent heat stress.`);
+      else lines.push(`🌡️ Temperature at ${s.temp}°C is ideal for tomato growth. Good conditions right now.`);
+      if (s.humidity > 75) lines.push(`🌫️ Humidity at ${s.humidity}% is high — even healthy plants can develop fungal issues. Ensure good airflow between plants and avoid wetting the leaves.`);
+      else lines.push(`🌫️ Humidity at ${s.humidity}% is within safe range. No fungal risk currently.`);
+      lines.push(`✅ Action for TODAY: Apply a balanced NPK foliar spray (19:19:19 at 5g per litre) to boost flowering. Check for any new spots or discolouration every 2 days.`);
+      return lines.join('<br><br>');
+    },
+    hi: (s) => {
+      const lines = [];
+      lines.push(`✅ बहुत अच्छा, रमेश! आपका टमाटर का पौधा स्वस्थ है — पत्ती में कोई बीमारी नहीं मिली।`);
+      if (s.moisture < 35) lines.push(`💧 मिट्टी की नमी ${s.moisture}% — थोड़ी कम है। सुबह जड़ में पानी दें।`);
+      else lines.push(`💧 मिट्टी की नमी ${s.moisture}% — बिल्कुल सही है।`);
+      if (s.temp > 35) lines.push(`🌡️ तापमान ${s.temp}°C — गर्मी अधिक है। मल्चिंग करें और दोपहर में छाया दें।`);
+      else lines.push(`🌡️ तापमान ${s.temp}°C — टमाटर के लिए बहुत अच्छा है।`);
+      lines.push(`✅ आज का काम: NPK 19:19:19 (5g प्रति लीटर) का छिड़काव करें — फूल और फल अच्छे आएंगे। हर 2 दिन में पत्तियां जांचते रहें।`);
+      return lines.join('<br><br>');
+    },
+    kn: (s) => {
+      const lines = [];
+      lines.push(`✅ ಶಾಬಾಸ್, ರಮೇಶ್! ನಿಮ್ಮ ಟೊಮೇಟೊ ಗಿಡ ಆರೋಗ್ಯವಾಗಿದೆ — ಎಲೆಯಲ್ಲಿ ಯಾವ ರೋಗವೂ ಕಾಣಿಸಿಲ್ಲ.`);
+      if (s.moisture < 35) lines.push(`💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% — ಸ್ವಲ್ಪ ಕಡಿಮೆ. ಬೆಳಿಗ್ಗೆ ಬೇರಿನ ಬಳಿ ನೀರು ಹಾಕಿ.`);
+      else lines.push(`💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% ಸರಿಯಾಗಿದೆ.`);
+      if (s.temp > 35) lines.push(`🌡️ ತಾಪಮಾನ ${s.temp}°C — ಹೆಚ್ಚಾಗಿದೆ. ಮಲ್ಚಿಂಗ್ ಮಾಡಿ.`);
+      else lines.push(`🌡️ ತಾಪಮಾನ ${s.temp}°C — ಟೊಮೇಟೊಗೆ ಸೂಕ್ತ.`);
+      lines.push(`✅ ಇಂದಿನ ಕೆಲಸ: NPK 19:19:19 (5g ಪ್ರತಿ ಲೀಟರ್) ಸಿಂಪಡಿಸಿ. ಪ್ರತಿ 2 ದಿನಕ್ಕೊಮ್ಮೆ ಎಲೆಗಳನ್ನು ಪರೀಕ್ಷಿಸಿ.`);
+      return lines.join('<br><br>');
+    },
+    ta: (s) => {
+      const lines = [];
+      lines.push(`✅ மிகவும் நல்லது, ரமேஷ்! உங்கள் தக்காளி செடி ஆரோக்கியமாக உள்ளது — இலையில் எந்த நோயும் கண்டறியப்படவில்லை.`);
+      if (s.moisture < 35) lines.push(`💧 மண் ஈரப்பதம் ${s.moisture}% — சற்று குறைவு. காலையில் வேரின் அருகில் நீர் பாய்ச்சவும்.`);
+      else lines.push(`💧 மண் ஈரப்பதம் ${s.moisture}% சரியாக உள்ளது.`);
+      if (s.temp > 35) lines.push(`🌡️ வெப்பநிலை ${s.temp}°C — அதிகமாக உள்ளது. மல்ச்சிங் செய்யவும்.`);
+      else lines.push(`🌡️ வெப்பநிலை ${s.temp}°C — தக்காளிக்கு ஏற்றது.`);
+      lines.push(`✅ இன்றைய வேலை: NPK 19:19:19 (5g/லிட்டர்) தெளிக்கவும். ஒவ்வொரு 2 நாளும் இலைகளை சரிபார்க்கவும்.`);
+      return lines.join('<br><br>');
+    },
+    te: (s) => {
+      const lines = [];
+      lines.push(`✅ చాలా బాగుంది, రమేష్! మీ టమాటో మొక్క ఆరోగ్యంగా ఉంది — ఆకులో ఏ వ్యాధీ కనుగొనబడలేదు.`);
+      if (s.moisture < 35) lines.push(`💧 నేల తేమ ${s.moisture}% — కొంచెం తక్కువ. ఉదయం మొక్క మొదట్లో నీరు పోయండి.`);
+      else lines.push(`💧 నేల తేమ ${s.moisture}% సరిగ్గా ఉంది.`);
+      if (s.temp > 35) lines.push(`🌡️ ఉష్ణోగ్రత ${s.temp}°C — ఎక్కువగా ఉంది. మల్చింగ్ చేయండి.`);
+      else lines.push(`🌡️ ఉష్ణోగ్రత ${s.temp}°C — టమాటోకు అనుకూలంగా ఉంది.`);
+      lines.push(`✅ ఈరోజు చేయవలసింది: NPK 19:19:19 (5g/లీటరు) పిచికారి చేయండి. ప్రతి 2 రోజులకు ఆకులు పరీక్షించండి.`);
+      return lines.join('<br><br>');
+    },
+  },
+};
+
+// Generic advice for diseases without specific translations
+function genericAdvice(diseaseKey, s, lang) {
+  const cleanName = diseaseKey.replace('Tomato_','').replace('Tomato__','').replace(/_/g,' ');
+  const advice = {
+    en: `🔬 Disease Detected: ${cleanName}<br><br>${s.humidity > 70 ? `🌫️ Humidity at ${s.humidity}% is high — fungal risk elevated. Improve airflow between plants.<br><br>` : ''}${s.moisture < 35 ? `💧 Soil moisture at ${s.moisture}% is low — water at the base, not the leaves.<br><br>` : s.moisture > 80 ? `💧 Soil moisture at ${s.moisture}% is too high — reduce watering to prevent root rot.<br><br>` : `💧 Soil moisture at ${s.moisture}% is acceptable.<br><br>`}${s.temp > 35 ? `🌡️ Temperature at ${s.temp}°C is stressful — add mulch to cool roots.<br><br>` : `🌡️ Temperature at ${s.temp}°C is within manageable range.<br><br>`}✅ Action for TODAY: Consult your local Krishi Kendra with a leaf sample. Meanwhile remove visibly infected leaves and avoid wetting the plant during watering.`,
+    hi: `🔬 रोग: ${cleanName}<br><br>${s.humidity > 70 ? `🌫️ नमी ${s.humidity}% — बहुत अधिक, तुरंत हवा का प्रवाह बढ़ाएं।<br><br>` : ''}${s.moisture < 35 ? `💧 मिट्टी नमी ${s.moisture}% — कम है, जड़ में पानी दें।<br><br>` : `💧 मिट्टी नमी ${s.moisture}% — ठीक है।<br><br>`}✅ आज: संक्रमित पत्तियां हटाएं और स्थानीय कृषि केंद्र से मिलें।`,
+    kn: `🔬 ರೋಗ: ${cleanName}<br><br>${s.humidity > 70 ? `🌫️ ತೇವಾಂಶ ${s.humidity}% — ತುಂಬಾ ಹೆಚ್ಚು, ಗಾಳಿ ಚಲನೆ ಹೆಚ್ಚಿಸಿ।<br><br>` : ''}${s.moisture < 35 ? `💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% — ಕಡಿಮೆ, ಬೇರಿನ ಬಳಿ ನೀರು ಹಾಕಿ।<br><br>` : `💧 ಮಣ್ಣಿನ ತೇವಾಂಶ ${s.moisture}% ಸರಿಯಾಗಿದೆ।<br><br>`}✅ ಇಂದು: ಸೋಂಕಿತ ಎಲೆಗಳನ್ನು ತೆಗೆಯಿರಿ ಮತ್ತು ಸ್ಥಳೀಯ ಕೃಷಿ ಕೇಂದ್ರಕ್ಕೆ ಹೋಗಿ।`,
+    ta: `🔬 நோய்: ${cleanName}<br><br>${s.humidity > 70 ? `🌫️ ஈரப்பதம் ${s.humidity}% — அதிகம், காற்றோட்டம் அதிகரிக்கவும்.<br><br>` : ''}${s.moisture < 35 ? `💧 மண் ஈரப்பதம் ${s.moisture}% — குறைவு, வேரில் நீர் பாய்ச்சவும்.<br><br>` : `💧 மண் ஈரப்பதம் ${s.moisture}% சரியாக உள்ளது.<br><br>`}✅ இன்று: தொற்று பட்ட இலைகளை அகற்றி உள்ளூர் வேளாண் நிலையம் செல்லவும்.`,
+    te: `🔬 వ్యాధి: ${cleanName}<br><br>${s.humidity > 70 ? `🌫️ తేమ ${s.humidity}% — ఎక్కువగా ఉంది, గాలి చలనం పెంచండి.<br><br>` : ''}${s.moisture < 35 ? `💧 నేల తేమ ${s.moisture}% — తక్కువ, మొక్క మొదట్లో నీరు పోయండి.<br><br>` : `💧 నేల తేమ ${s.moisture}% సరిగ్గా ఉంది.<br><br>`}✅ ఈరోజు: సోకిన ఆకులు తీసి స్థానిక కృషి కేంద్రానికి వెళ్ళండి.`,
+  };
+  return advice[lang] || advice.en;
+}
+
+// ── Build product recommendation HTML ────────────────────────────
+function buildProductHTML(diseaseKey, lang) {
+  const products = PRODUCTS[diseaseKey] || PRODUCTS['Tomato_healthy'];
+  const titles = {
+    en: '🛒 Recommended Products & Prices',
+    hi: '🛒 अनुशंसित उत्पाद और कीमतें',
+    kn: '🛒 ಶಿಫಾರಸು ಮಾಡಿದ ಉತ್ಪನ್ನಗಳು ಮತ್ತು ಬೆಲೆಗಳು',
+    ta: '🛒 பரிந்துரைக்கப்பட்ட பொருட்கள் & விலைகள்',
+    te: '🛒 సిఫారసు చేయబడిన ఉత్పత్తులు & ధరలు',
+  };
+  const whereLabels = { en:'Where to buy', hi:'कहाँ खरीदें', kn:'ಎಲ್ಲಿ ಕೊಳ್ಳಬಹುದು', ta:'எங்கே வாங்கலாம்', te:'ఎక్కడ కొనాలి' };
+  const howLabels  = { en:'How to use', hi:'कैसे उपयोग करें', kn:'ಹೇಗೆ ಬಳಸುವುದು', ta:'எப்படி பயன்படுத்துவது', te:'ఎలా వాడాలి' };
+  const title = titles[lang] || titles.en;
+  const whereL = whereLabels[lang] || whereLabels.en;
+  const howL   = howLabels[lang]   || howLabels.en;
+
+  const cards = products.map(p => `
+    <div style="background:var(--green-50);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);margin-bottom:4px">🧴 ${p.name}</div>
+      <div style="font-size:0.85rem;color:var(--green-700);font-weight:600;margin-bottom:4px">💰 ${p.price}</div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:2px">📍 ${whereL}: ${p.where}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted)">🔧 ${howL}: ${p.use}</div>
+    </div>
+  `).join('');
+
+  return `<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+    <div style="font-weight:700;font-size:0.92rem;margin-bottom:10px;color:var(--text-primary)">${title}</div>
+    ${cards}
+  </div>`;
+}
+
+// ── Save advice to history in Firestore ──────────────────────────
+async function saveAdviceToHistory(diseaseKey, adviceHTML, products, lang) {
+  try {
+    if (!window._db) return;
+    const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    await addDoc(collection(window._db, 'advice_history'), {
+      farmer: 'Ramesh',
+      lang,
+      diseaseKey,
+      diseaseName: diseaseKey.replace('Tomato_','').replace('Tomato__','').replace(/_/g,' '),
+      adviceHTML,
+      products,
+      sensor: { ...sensorState },
+      timestamp: serverTimestamp(),
+    });
+    console.log('✅ Advice saved to history');
+  } catch(e) {
+    console.warn('History save failed:', e.message);
+  }
+}
+
+// ── Main advice function (replaces Gemini) ────────────────────────
+async function getNewAdvice(){
+  const recEl   = document.getElementById('ai-rec-text');
+  const loadEl  = document.getElementById('ai-loading');
+  const loadMsg = document.getElementById('ai-loading-msg');
+  const errEl   = document.getElementById('ai-error');
+  const btnGet  = document.getElementById('btn-get-advice');
+  const metaEl  = document.getElementById('ai-card-meta');
+
+  errEl.style.display = 'none';
+  recEl.style.display = 'none';
+  loadEl.style.display = 'block';
+  btnGet.disabled = true;
+  btnGet.textContent = T('ai_thinking');
+
+  const msgs = T('loading_msgs');
+  let mi = 0;
+  loadMsg.textContent = msgs[0];
+  const mt = setInterval(()=>{ mi=(mi+1)%msgs.length; loadMsg.textContent=msgs[mi]; }, 1800);
+
+  try {
+    const s = sensorState;
+    let diseaseKey = 'Tomato_healthy';
+    let modelConfidence = null;
+
+    // ── Step 1: Get disease prediction from Flask model if photo uploaded ──
+    if (leafPhotoBase64 && window._modelAPIUrl) {
+      try {
+        const blob = await fetch(`data:image/jpeg;base64,${leafPhotoBase64}`).then(r => r.blob());
+        const form = new FormData();
+        form.append('image', blob, 'leaf.jpg');
+        const res  = await fetch(`${window._modelAPIUrl}/predict`, { method:'POST', body:form });
+        if (res.ok) {
+          const pred = await res.json();
+          diseaseKey       = pred.raw_label || diseaseKey;
+          modelConfidence  = pred.confidence;
+        }
+      } catch(e) {
+        console.warn('Model API unavailable, using sensor stress class:', e.message);
+        // Fall back to stress class from ESP32
+        if (s.stressClass && s.stressClass.toLowerCase() !== 'healthy') {
+          diseaseKey = 'Tomato_Early_blight'; // default disease if model offline
+        }
+      }
+    } else if (s.stressClass && s.stressClass.toLowerCase() !== 'healthy') {
+      // No photo — use ESP32 stress classification
+      diseaseKey = 'Tomato_Early_blight';
+    }
+
+    // ── Update cost page with detected disease ─────────────────────
+    window.updateCostPage(diseaseKey);
+
+    // ── Step 2: Build personalised advice ──────────────────────────
+    const lang = currentLang;
+    let adviceHTML;
+    if (DISEASE_ADVICE[diseaseKey] && DISEASE_ADVICE[diseaseKey][lang]) {
+      adviceHTML = DISEASE_ADVICE[diseaseKey][lang](s);
+    } else if (DISEASE_ADVICE[diseaseKey] && DISEASE_ADVICE[diseaseKey]['en']) {
+      adviceHTML = DISEASE_ADVICE[diseaseKey]['en'](s);
+    } else {
+      adviceHTML = genericAdvice(diseaseKey, s, lang);
+    }
+
+    // ── Step 3: Build product recommendations ─────────────────────
+    const productHTML = buildProductHTML(diseaseKey, lang);
+
+    // ── Step 4: Build smart alerts ────────────────────────────────
+    const now = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    const aiAlerts = [];
+    if (s.humidity > 70 && s.temp > 28) {
+      aiAlerts.push({ emoji:'🦠', type:'warn', title:'Combined Fungal Risk', body:`Humidity ${s.humidity}% + Temp ${s.temp}°C — ideal conditions for fungal spread. Apply fungicide within 24 hours.`, time: now });
+    }
+    if (s.moisture < 30 && s.temp > 32) {
+      aiAlerts.push({ emoji:'🏜️', type:'warn', title:'Heat + Drought Stress', body:`Low moisture (${s.moisture}%) combined with high temperature (${s.temp}°C) is double stress on the plant. Irrigate now.`, time: now });
+    }
+    if (s.light < 30 && s.humidity > 65) {
+      aiAlerts.push({ emoji:'🌑', type:'warn', title:'Low Light + High Humidity', body:`Poor sunlight with high humidity is a recipe for mould. Clear any shade obstructions.`, time: now });
+    }
+    if (aiAlerts.length === 0) {
+      aiAlerts.push({ emoji:'🌱', type:'good', title:'Sensor Conditions Manageable', body:`No dangerous sensor combinations detected. Focus on the disease treatment above.`, time: now });
+    }
+    window._lastAiAlerts = aiAlerts;
+    refreshAlerts();
+
+    // ── Step 5: Display everything ────────────────────────────────
+    clearInterval(mt);
+    loadEl.style.display = 'none';
+    recEl.style.display  = 'block';
+
+    const cleanDisease = diseaseKey.replace('Tomato_','').replace('Tomato__','').replace(/_/g,' ');
+    const confidenceLine = modelConfidence ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">🤖 Model confidence: ${modelConfidence}% · ${leafPhotoBase64 ? '📷 Leaf photo analysed' : '📡 Sensor-based prediction'}</div>` : `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">📡 Based on live sensor readings${leafPhotoBase64 ? ' + leaf photo' : ''}</div>`;
+
+    recEl.innerHTML = confidenceLine + adviceHTML + productHTML;
+
+    const now2 = new Date();
+    metaEl.textContent = `Generated ${now2.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} · CropSense Offline Engine · ${cleanDisease}`;
+
+    ['btn-helpful','btn-log','btn-share'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = 'inline-flex';
+    });
+    btnGet.textContent = T('ai_refreshed');
+    btnGet.disabled = false;
+    showToast(T('toast_ai_ready'));
+
+    // ── Step 6: Save to Firebase history ─────────────────────────
+    await saveAdviceToHistory(diseaseKey, recEl.innerHTML, PRODUCTS[diseaseKey] || [], lang);
+
+  } catch(err) {
+    clearInterval(mt);
+    loadEl.style.display = 'none';
+    recEl.style.display  = 'block';
+    recEl.innerHTML = `<span class="ai-placeholder-text">${T('ai_placeholder')}</span>`;
+    errEl.textContent = '⚠️ ' + err.message;
+    errEl.style.display = 'block';
+    btnGet.textContent = T('btn_get_advice');
+    btnGet.disabled = false;
+  }
+}
+
+// ── Model API URL — set this after running Flask + ngrok ─────────
+window._modelAPIUrl = 'https://hug-frigidly-crying.ngrok-free.dev';
+// Leave commented out to use sensor-based advice only (fully offline)
+
+function markHelpful(){ showToast(T('toast_helpful')); }
+function shareAdvice(){
+  const text = document.getElementById('ai-rec-text').innerText;
+  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>showToast(T('toast_copied'))); }
+  else { showToast(T('toast_copied')); }
+}
+
+function selectOutcome(el){
+  el.parentElement.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectEffectiveness(el){
+  el.parentElement.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectWouldRepeat(el){
+  el.parentElement.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function handlePhoto(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const empty = document.getElementById('photo-drop-empty');
+    if (empty) empty.style.display = 'none';
+    const p = document.getElementById('photo-preview');
+    p.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;max-height:160px;border-radius:10px;display:block;margin:0 auto;border:2px solid var(--border)"><div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;font-weight:600">✅ Tap to change photo</div>`;
+    p.style.display = 'block';
+  };
+  r.readAsDataURL(file);
+}
+
+function submitLog(){ showToast(T('toast_submitted')); setTimeout(()=>showPage('history'), 1800); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 3000);
+}
+
+const logDateInput = document.getElementById('log-date');
+if (logDateInput) {
+  logDateInput.valueAsDate = new Date();
+}
+// Show threshold alerts on load with demo/default sensor values
+refreshAlerts();
+
+// ══════════════════════════════════════════════════════
+// LIVE GRAPH UPDATES — Absorption + Stress from sensors
+// ══════════════════════════════════════════════════════
+window.updateAbsorptionGraph = function(moisture, absorptionRate) {
+  // Build a realistic curve based on current moisture
+  // SVG viewBox 0,0 320,110 — y=95 is low (dry), y=10 is high (wet)
+  const toY = (pct) => 95 - ((pct / 100) * 85);
+
+  // Simulate absorption curve over 60 min using current moisture as peak
+  const startMoisture = Math.max(5, moisture - 38);
+  const peakMoisture  = moisture;
+  const endMoisture   = Math.max(startMoisture + 5, moisture - 5);
+
+  const y0   = toY(startMoisture);
+  const yPeak = toY(peakMoisture);
+  const yEnd  = toY(endMoisture);
+
+  const linePath = `M0,${y0} C60,${y0 - 10} 80,${yPeak + 5} 120,${yPeak} S220,${yPeak + 3} 320,${yEnd}`;
+  const fillPath = linePath + ` L320,110 L0,110 Z`;
+
+  const lineEl = document.getElementById('abs-line');
+  const fillEl = document.getElementById('abs-fill');
+  const dotS   = document.getElementById('abs-dot-start');
+  const dotE   = document.getElementById('abs-dot-end');
+
+  if (lineEl) lineEl.setAttribute('d', linePath);
+  if (fillEl) fillEl.setAttribute('d', fillPath);
+  if (dotS)   { dotS.setAttribute('cx', '0');   dotS.setAttribute('cy', y0); }
+  if (dotE)   { dotE.setAttribute('cx', '320'); dotE.setAttribute('cy', yEnd); }
+
+  // Update footer text
+  const gain = Math.round(peakMoisture - startMoisture);
+  const statusEl = document.getElementById('abs-status-text');
+  const rotEl    = document.getElementById('abs-rot-text');
+  const gainEl   = document.getElementById('abs-gain-pct');
+
+  const rateLabel = absorptionRate || (gain > 30 ? 'Fast' : gain > 15 ? 'Normal' : 'Slow');
+  const rotRisk   = moisture > 80 ? '⚠️ Root rot risk — reduce watering' : moisture < 20 ? '⚠️ Too dry — irrigate now' : '✅ No root rot detected';
+
+  if (statusEl) statusEl.textContent = `Absorption: ${rateLabel}`;
+  if (rotEl)    rotEl.textContent    = rotRisk;
+  if (gainEl)   gainEl.textContent   = `+${gain}%`;
+};
+
+window.updateStressDonut = function(stressClass) {
+  // Update the stress donut/badge color dynamically
+  const badge = document.querySelector('.stress-badge');
+  if (!badge) return;
+
+  const sc = (stressClass || 'Healthy').toLowerCase();
+  badge.textContent = stressClass || 'Healthy';
+
+  if (sc.includes('health')) {
+    badge.style.background = 'var(--green-100)';
+    badge.style.color = 'var(--green-700)';
+  } else if (sc.includes('stress') || sc.includes('blight') || sc.includes('mite')) {
+    badge.style.background = '#fef3c7';
+    badge.style.color = '#92400e';
+  } else {
+    badge.style.background = '#fee2e2';
+    badge.style.color = '#991b1b';
+  }
+};
+
+</script>
+
+<!-- ════════ FIREBASE INTEGRATION ════════ -->
+<script type="module">
+import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+import { getFirestore, collection, addDoc, setDoc, doc, serverTimestamp, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ──────────────────────────────────────────
+// 🔧 REPLACE THESE WITH YOUR FIREBASE CONFIG
+// Firebase Console → Project Settings → Your apps → SDK setup
+// ──────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDa2aUkNowBw-pmtaTwU0X_Jap227D4gYk",
+  authDomain: "cropsense-a3be7.firebaseapp.com",
+  // ADD THIS LINE BELOW:
+  databaseURL: "https://cropsense-a3be7-default-rtdb.asia-southeast1.firebasedatabase.app", 
+  projectId: "cropsense-a3be7",
+  storageBucket: "cropsense-a3be7.firebasestorage.app",
+  messagingSenderId: "314942006961",
+  appId: "1:314942006961:web:886856494e077d00296490",
+};
+
+
+// ── Init ──────────────────────────────────
+const app     = initializeApp(firebaseConfig);
+const rtdb   = getDatabase(app);
+const db     = getFirestore(app);
+const storage = getStorage(app);
+
+// Expose to global scope so non-module functions can call them
+window._rtdb    = rtdb;
+window._db      = db;
+window._storage = storage;
+window._fbReady = true;
+
+// The functions below (collection, addDoc, serverTimestamp, query, orderBy,
+// onSnapshot) were only imported into THIS module's private scope. The
+// classic <script> block above (submitLog, loadHistoryFromFirebase, etc.)
+// calls them as bare globals — without this, every one of those calls threw
+// a silent ReferenceError, which is why saving hung on "Saving…" and the
+// history tab never updated.
+window.db             = db;
+window.collection     = collection;
+window.addDoc         = addDoc;
+window.setDoc         = setDoc;
+window.doc            = doc;
+window.serverTimestamp = serverTimestamp;
+window.query          = query;
+window.orderBy        = orderBy;
+window.onSnapshot     = onSnapshot;
+
+// ── Firebase status badge ─────────────────
+const connBadge = document.querySelector('.conn-badge');
+if (connBadge) {
+  connBadge.innerHTML = '<span class="conn-dot"></span> Firebase';
+}
+
+// ══════════════════════════════════════════
+// SENSOR READINGS — Live Firestore listener
+// Reads from `sensor_readings` collection.
+// Each IoT doc has: moisture, temperature, light, humidity,
+//   stress_class, absorption_rate, plant_id, timestamp
+// Always shows the LATEST doc. All docs are preserved as logs.
+// ══════════════════════════════════════════
+let sensorUnsub = null;
+
+window.loadSensorFromFirebase = function() {
+  if (sensorUnsub) sensorUnsub(); // clear any previous listener
+
+  const sensorRef = ref(rtdb, "sensor_readings");
+  sensorUnsub = onValue(sensorRef, (snapshot) => {
+    const readings = snapshot.val();
+    if (!readings) {
+      console.log("No sensor data found");
+      return;
+    }
+
+    // Filter to only include Firebase push keys (which always start with '-') 
+    // to prevent picking up static demo/structural keys (like "0", "1", "latest")
+    let entries = Object.entries(readings).filter(([key]) => key.startsWith('-'));
+    
+    if (entries.length === 0) {
+      entries = Object.entries(readings); // fallback if no push keys exist
+    }
+
+    // Sort by key to get the absolute newest entry
+    entries.sort((a, b) => a[0].localeCompare(b[0]));
+    const latest = entries[entries.length - 1][1];
+
+    // This will print the exact data the web page is loading in your browser console:
+    console.log("📡 LIVE SENSOR UPDATE (Parsed):", latest);
+
+    sensorState.moisture      = Number(latest.moisture || sensorState.moisture || 0);
+    sensorState.temp          = Number(latest.temperature || sensorState.temp || 0);
+    sensorState.humidity      = Number(latest.humidity || sensorState.humidity || 0);
+    sensorState.light         = Number(latest.light || sensorState.light || 0);
+    sensorState.absorptionRate = latest.absorption_rate || sensorState.absorptionRate || 'Normal';
+    sensorState.stressClass   = latest.stress_class || sensorState.stressClass || 'Healthy';
+
+    const cards = document.querySelectorAll('.sensor-card');
+    if (cards.length) {
+      const pct = (v, max) => Math.min(100, Math.round((v / max) * 100));
+      const moist = sensorState.moisture;
+      const temp = sensorState.temp;
+      const light = sensorState.light;
+      const hum = sensorState.humidity;
+
+      cards[0].querySelector('.sensor-value').innerHTML = moist + '<span>%</span>';
+      cards[0].querySelector('.sensor-bar').style.width = moist + '%';
+      cards[1].querySelector('.sensor-value').innerHTML = temp + '<span>°C</span>';
+      cards[1].querySelector('.sensor-bar').style.width = pct(temp, 50) + '%';
+      cards[2].querySelector('.sensor-value').innerHTML = light + '<span>%</span>';
+      cards[2].querySelector('.sensor-bar').style.width = light + '%';
+      cards[3].querySelector('.sensor-value').innerHTML = hum + '<span>%</span>';
+      cards[3].querySelector('.sensor-bar').style.width = hum + '%';
+    }
+
+    const sb = document.querySelector('.stress-badge');
+    if (sb && sensorState.stressClass) {
+      const isHealthy = sensorState.stressClass.toLowerCase().includes('health');
+      sb.className = 'stress-badge ' + (isHealthy ? 'green' : 'amber');
+      sb.textContent = sensorState.stressClass;
+    }
+
+    showToast('📡 Sensor updated from Firebase!');
+    refreshAlerts();
+    if (window.updateAbsorptionGraph) window.updateAbsorptionGraph(sensorState.moisture, sensorState.absorptionRate);
+    if (window.updateStressDonut)     window.updateStressDonut(sensorState.stressClass);
+  }, (err) => {
+    console.warn('Realtime Database sensor_readings error:', err.message, '— using demo values');
+  });
+};
+
+// Start listener on load — single plant, no selector needed
+window.loadSensorFromFirebase();
+
+// ══════════════════════════════════════════
+// PHOTO UPLOAD — Local (base64), no server needed
+// ══════════════════════════════════════════
+window._uploadedPhotoURL = null;
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Patch handlePhoto to store photo locally as base64 (works fully offline)
+const _origHandlePhoto = window.handlePhoto;
+window.handlePhoto = async function(e) {
+  _origHandlePhoto(e); // show preview as before
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    window._uploadedPhotoURL = await readFileAsDataURL(file);
+    showToast('📸 Photo attached!');
+  } catch (err) {
+    console.warn('Photo read failed:', err.message);
+    // Non-fatal — log will still submit without photo
+    window._uploadedPhotoURL = null;
+  }
+};
+
+// ══════════════════════════════════════════
+// SUBMIT LOG — Save locally (localStorage), instant, no network needed
+// ══════════════════════════════════════════
+const LOCAL_LOGS_KEY = 'cropsense_local_logs'; // old localStorage key, migrated once then unused
+const IDB_NAME = 'cropsense_db';
+const IDB_STORE = 'logs';
+let _idbPromise = null;
+let _migratedOldLogs = false;
+
+function openLogsDB() {
+  if (_idbPromise) return _idbPromise;
+  _idbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE, { keyPath: 'timestamp' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _idbPromise;
+}
+
+// One-time migration: pull any logs that were previously saved in localStorage
+// (from before this fix) into IndexedDB, then stop touching localStorage.
+async function migrateOldLocalStorageLogs() {
+  if (_migratedOldLogs) return;
+  _migratedOldLogs = true;
+  try {
+    const raw = localStorage.getItem(LOCAL_LOGS_KEY);
+    if (!raw) return;
+    const oldLogs = JSON.parse(raw);
+    if (!Array.isArray(oldLogs) || oldLogs.length === 0) return;
+    const db = await openLogsDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+      oldLogs.forEach(log => store.put(log));
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    localStorage.removeItem(LOCAL_LOGS_KEY); // free up the old quota-limited storage
+    console.log(`%c🌱 Migrated ${oldLogs.length} log(s) from localStorage to IndexedDB`, 'color:#38a347;font-weight:bold');
+  } catch (err) {
+    console.warn('Old-log migration skipped:', err.message);
+  }
+}
+
+async function getLocalLogs() {
+  try {
+    await migrateOldLocalStorageLogs();
+    const db = await openLogsDB();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {
+    console.warn('IndexedDB read failed:', err.message);
+    return [];
+  }
+}
+
+async function saveLocalLog(logEntry) {
+  const db = await openLogsDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(logEntry);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+window.submitLog = async function() {
+  const submitBtn = document.querySelector('.submit-btn-full');
+
+  const outcome = document.querySelector('#log-outcome-grid .outcome-btn.selected')?.textContent?.trim() || '';
+  if (!outcome) {
+    showToast('⚠️ Please answer Q1 — what happened after following the advice?');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ Saving…';
+
+  const plant   = document.getElementById('log-plant')?.value || 'tomato';
+  const notes   = document.getElementById('log-notes')?.value  || '';
+  const dateVal = document.getElementById('log-date')?.value   || '';
+  const effectiveness = document.querySelector('#log-effectiveness-grid .outcome-btn.selected')?.textContent?.trim() || '';
+  const wouldRepeat   = document.querySelector('#log-wouldrepeat-grid .outcome-btn.selected')?.textContent?.trim() || '';
+  const weather = document.querySelector('input[name="weather"]:checked')
+                    ?.closest('.weather-option')?.textContent?.trim() || '';
+  const productUsed = document.getElementById('log-product-used')?.value || '';
+  const daysAfter    = document.getElementById('log-days-after')?.value || '';
+  const aiText  = document.getElementById('ai-rec-text')?.innerText?.trim() || '';
+
+  const logEntry = {
+    farmer:    'Ramesh',
+    lang:      currentLang,
+    plant,
+    notes,
+    date:      dateVal,
+    outcome,
+    effectiveness,
+    wouldRepeat,
+    weather,
+    productUsed,
+    daysAfter,
+    aiText,
+    beforePhotoURL: window._leafPhotoFullDataURL || null, // dashboard diagnosis photo
+    diseaseKey: window._currentBudgetDisease || null, // disease diagnosed on the Dashboard for this check-in
+    photoURL:  window._uploadedPhotoURL || null,          // "after" photo from this review
+    sensor: {
+      moisture:       sensorState.moisture,
+      temp:           sensorState.temp,
+      light:          sensorState.light,
+      humidity:       sensorState.humidity,
+      stressClass:    sensorState.stressClass,
+      absorptionRate: sensorState.absorptionRate,
+    },
+    timestamp: Date.now(),
+  };
+
+  try {
+    await saveLocalLog(logEntry);
+    window._uploadedPhotoURL = null; // reset after save
+    showToast(T('toast_submitted'));
+    submitBtn.textContent = T('btn_submit');
+    submitBtn.disabled = false;
+
+    if (outcome.includes('Worse')) {
+      // Plant got worse — show an escalated recommendation instead of just moving on
+      setTimeout(() => window.showEscalationAdvice(logEntry.diseaseKey), 900);
+    } else {
+      setTimeout(() => {
+        showPage('history');
+        loadHistoryFromFirebase(); // refresh history immediately (now reads from localStorage)
+      }, 1800);
+    }
+  } catch (err) {
+    console.error('Local log save failed:', err.message);
+    showToast('⚠️ Save failed: ' + err.message);
+    submitBtn.textContent = T('btn_submit');
+    submitBtn.disabled = false;
+  }
+};
+
+// ══════════════════════════════════════════
+// HISTORY — Live Firestore listener for logs
+// ══════════════════════════════════════════
+const outcomeTagMap = {
+  '✅ Plant Recovered':   'tag-green',
+  '📈 Slowly Improving':  'tag-blue',
+  '😐 No Change':         'tag-amber',
+  '📉 Got Worse':         'tag-red',
+};
+
+function outcomeTag(text) {
+  const cls = Object.entries(outcomeTagMap).find(([k]) => text.includes(k.split(' ')[1]))?.[1] || 'tag-blue';
+  return `<span class="tag ${cls}">${text}</span>`;
+}
+
+function stressTag(text) {
+  return `<span class="tag tag-amber">${text}</span>`;
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+let histUnsub = null;
+
+// Map an outcome string to a 0–100 recovery score for the trend line
+const outcomeScoreMap = [
+  { match: 'Recovered', score: 100, color: '#38a347' },
+  { match: 'Improving', score: 66,  color: '#3b82f6' },
+  { match: 'No Change', score: 33,  color: '#f59e0b' },
+  { match: 'Worse',     score: 6,   color: '#ef4444' },
+];
+function outcomeScore(text) {
+  const hit = outcomeScoreMap.find(o => (text || '').includes(o.match));
+  return hit || { score: 50, color: '#7fa880' };
+}
+
+// ── Build the recovery trend SVG from real logged outcomes ───────
+function buildTrendChart(logsAscending) {
+  const wrap = document.getElementById('trend-svg-wrap');
+  const sub  = document.getElementById('trend-head-sub');
+  if (!wrap) return;
+
+  const withOutcome = logsAscending.filter(d => d.outcome);
+  if (withOutcome.length < 2) {
+    wrap.innerHTML = `<div class="trend-empty" id="trend-empty">📊 <span>${
+      withOutcome.length === 0
+        ? 'No check-ins logged yet — submit your first outcome to start the trend.'
+        : 'Log one more outcome to unlock the trend line.'
+    }</span><div class="trend-empty-cta"><button class="btn btn-primary" onclick="showPage(\'log\')">📝 Log Outcome</button></div></div>`;
+    if (sub) sub.textContent = 'Based on your logged outcomes over time';
+    return;
+  }
+
+  const W = 640, H = 190, padL = 28, padR = 16, padT = 18, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const n = withOutcome.length;
+  const toX = (i) => padL + (n === 1 ? innerW/2 : (i/(n-1)) * innerW);
+  const toY = (score) => padT + innerH - (score/100)*innerH;
+
+  const pts = withOutcome.map((d,i) => {
+    const { score, color } = outcomeScore(d.outcome);
+    return { x: toX(i), y: toY(score), score, color, date: formatDate(d.timestamp) };
+  });
+
+  let linePath = `M${pts[0].x},${pts[0].y}`;
+  pts.slice(1).forEach(p => { linePath += ` L${p.x},${p.y}`; });
+  const fillPath = linePath + ` L${pts[pts.length-1].x},${padT+innerH} L${pts[0].x},${padT+innerH} Z`;
+
+  const gridLines = [0,50,100].map(v => `
+    <line x1="${padL}" y1="${toY(v)}" x2="${W-padR}" y2="${toY(v)}" stroke="#e2eddf" stroke-width="1" stroke-dasharray="3,4"/>
+    <text x="4" y="${toY(v)+3}" class="trend-axis-label">${v}</text>`).join('');
+
+  const firstLabel = pts.length ? `<text x="${pts[0].x}" y="${H-6}" class="trend-axis-label" text-anchor="start">${withOutcome[0] ? formatDate(withOutcome[0].timestamp) : ''}</text>` : '';
+  const lastLabel  = pts.length ? `<text x="${pts[pts.length-1].x}" y="${H-6}" class="trend-axis-label" text-anchor="end">${formatDate(withOutcome[withOutcome.length-1].timestamp)}</text>` : '';
+
+  const dots = pts.map(p => `
+    <g class="trend-point">
+      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${p.color}" stroke="#ffffff" stroke-width="2"/>
+      <title>${p.date} · ${withOutcome[pts.indexOf(p)]?.outcome || ''}</title>
+    </g>`).join('');
+
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4bc05b" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#4bc05b" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridLines}
+    <path d="${fillPath}" fill="url(#trendGrad)"/>
+    <path d="${linePath}" fill="none" stroke="#38a347" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+    ${firstLabel}${lastLabel}
+  </svg>`;
+
+  const recoveredShare = Math.round((withOutcome.filter(d => d.outcome.includes('Recovered') || d.outcome.includes('Improving')).length / n) * 100);
+  if (sub) sub.textContent = `${n} check-ins logged · ${recoveredShare}% trending toward recovery`;
+}
+
+// ── Build the before/after photo comparison from real uploads ────
+function buildPhotoCompare(logsAscending) {
+  const row   = document.getElementById('photo-compare-row');
+  const strip = document.getElementById('photo-strip');
+  if (!row) return;
+
+  const withPhoto = logsAscending.filter(d => d.photoURL);
+  if (withPhoto.length === 0) {
+    row.innerHTML = `<div class="photo-empty">📷 No photos logged yet — upload a leaf photo next time you get advice.</div>`;
+    if (strip) strip.innerHTML = '';
+    return;
+  }
+
+  // Feature the MOST RECENT check-in's own before/after pair
+  const latest = withPhoto[withPhoto.length - 1];
+
+  if (!latest.beforePhotoURL) {
+    // No dashboard photo was saved with this check-in — just show the after photo alone
+    row.innerHTML = `
+      <div class="photo-compare-card">
+        <img src="${latest.photoURL}" alt="Latest leaf photo">
+        <div class="photo-compare-tag after">Latest</div>
+        <div class="photo-compare-date">${formatDate(latest.timestamp)}</div>
+      </div>
+      <div style="flex:2;min-width:160px;color:var(--text-muted);font-size:0.82rem;font-weight:600;padding:8px">
+        No "before" photo was saved with this check-in — upload a diagnosis photo on the Dashboard next time for a before/after comparison.
+      </div>`;
+  } else {
+    row.innerHTML = `
+      <div class="photo-compare-card">
+        <img src="${latest.beforePhotoURL}" alt="Before photo (Dashboard diagnosis)">
+        <div class="photo-compare-tag before">Before</div>
+        <div class="photo-compare-date">${formatDate(latest.timestamp)}</div>
+      </div>
+      <div class="photo-compare-arrow">→</div>
+      <div class="photo-compare-card">
+        <img src="${latest.photoURL}" alt="After photo (review)">
+        <div class="photo-compare-tag after">After</div>
+        <div class="photo-compare-date">${formatDate(latest.timestamp)}</div>
+      </div>`;
+  }
+
+  // Earlier check-ins with photos, shown as a scrollable filmstrip (their own "after" photo)
+  const earlier = withPhoto.slice(0, -1);
+  strip.innerHTML = earlier.length
+    ? earlier.map(d => `<div class="photo-strip-item"><img src="${d.photoURL}" alt="Check-in"><span>${formatDate(d.timestamp)}</span></div>`).join('')
+    : '';
+}
+
+window.loadHistoryFromFirebase = async function() {
+  const tbody = document.querySelector('#page-history .history-table tbody');
+  const statWorked = document.getElementById('stat-worked');
+  const statLogs   = document.getElementById('stat-logs');
+  const statPhotos = document.getElementById('stat-photos');
+  const liveBadge  = document.getElementById('history-live-badge');
+
+  // Read from IndexedDB, newest first
+  const allLogs = await getLocalLogs();
+  const docsDesc = allLogs.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  if (liveBadge) liveBadge.style.display = 'none'; // no live server connection — purely local now
+
+  if (docsDesc.length === 0) {
+    tbody.innerHTML = `<tr class="history-empty-row"><td colspan="6">📭 No check-ins logged yet. Submit your first plant check-in from the Log Outcome tab — it'll show up here instantly.</td></tr>`;
+    if (statWorked) statWorked.textContent = '—';
+    if (statLogs)   statLogs.textContent   = '0';
+    if (statPhotos) statPhotos.textContent = '0';
+    buildTrendChart([]);
+    buildPhotoCompare([]);
+    return;
+  }
+
+  tbody.innerHTML = '';
+  let workedCount = 0, photoCount = 0;
+
+  docsDesc.forEach((d) => {
+    const plant = (d.plant || 'tomato').toLowerCase();
+    const emoji = plant === 'wheat' ? '🌾' : plant === 'rice' ? '🍚' : '🍅';
+    const plotMap = { tomato:'Plot A', wheat:'Plot B', rice:'Plot C' };
+    const stressText = d.sensor?.stressClass || 'Healthy';
+    const outcomeText = d.outcome || '—';
+    if (outcomeText.includes('Recovered') || outcomeText.includes('Improving')) workedCount++;
+    if (d.photoURL) photoCount++;
+
+    const photoCell = d.photoURL
+      ? `<img src="${d.photoURL}" width="40" style="border-radius:6px;display:block">`
+      : '—';
+
+    const recPreview = (d.aiText || '').replace(/<[^>]+>/g, '').slice(0, 60) + (d.aiText?.length > 60 ? '…' : '');
+
+    tbody.innerHTML += `<tr onclick="openLogDetail(${d.timestamp})" style="cursor:pointer">
+      <td style="white-space:nowrap">${formatDate(d.timestamp)}</td>
+      <td>${emoji} ${plant.charAt(0).toUpperCase()+plant.slice(1)} (${plotMap[plant]||'Plot A'})</td>
+      <td>${stressTag(stressText)}</td>
+      <td style="max-width:180px;font-size:0.8rem">${recPreview || '—'}</td>
+      <td>${outcomeTag(outcomeText)}</td>
+      <td>${photoCell}</td>
+    </tr>`;
+  });
+
+  // Update stat cards
+  const total = docsDesc.length;
+  if (statWorked) statWorked.textContent = total ? Math.round((workedCount/total)*100)+'%' : '—';
+  if (statLogs)   statLogs.textContent   = total;
+  if (statPhotos) statPhotos.textContent = photoCount;
+
+  // Trend chart + photo compare want oldest → newest order
+  const docsAscending = [...docsDesc].reverse();
+  buildTrendChart(docsAscending);
+  buildPhotoCompare(docsAscending);
+};
+
+// Start history listener when history page opens
+const _origShowPage = window.showPage;
+window.showPage = function(page) {
+  _origShowPage(page);
+  if (page === 'history') window.loadHistoryFromFirebase();
+  if (page === 'log') window.refreshLogBeforePhoto();
+};
+
+// Show the Dashboard diagnosis photo at the top of the Log Outcome / review page
+window.refreshLogBeforePhoto = function() {
+  const wrap = document.getElementById('log-before-photo-wrap');
+  if (!wrap) return;
+  if (window._leafPhotoFullDataURL) {
+    wrap.innerHTML = `<img src="${window._leafPhotoFullDataURL}" style="max-width:220px;border-radius:10px;display:block">`;
+  } else {
+    wrap.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;font-weight:600">No photo found — upload one on the Dashboard first to see it here for comparison.</div>`;
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// COST PAGE — Update dynamically based on disease
+// ══════════════════════════════════════════════════════
+
+// Track current disease and its products for budget functions
+window._currentBudgetDisease = null;
+window._currentBudgetProducts = [];
+window._currentBudgetTotal = 0;
+
+window.updateCostPage = function(diseaseKey) {
+  window._currentBudgetDisease = diseaseKey;
+  const products = PRODUCTS[diseaseKey] || PRODUCTS['Tomato_healthy'];
+  window._currentBudgetProducts = products;
+
+  // Show disease banner
+  const banner = document.getElementById('cost-disease-banner');
+  const diseaseName = document.getElementById('cost-disease-name');
+  const cleanName = diseaseKey.replace('Tomato__','').replace('Tomato_','').replace(/_/g,' ')
+    .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  if (banner) { banner.style.display = 'block'; }
+  if (diseaseName) { diseaseName.textContent = cleanName; }
+
+  // Extract min price from each product and build cost items
+  let total = 0;
+  const listEl = document.getElementById('cost-items-list');
+  if (!listEl) return;
+
+  listEl.innerHTML = products.map(p => {
+    // Parse min price from "₹180–₹220" → 180
+    const match = p.price.match(/₹(\d+)/);
+    const minPrice = match ? parseInt(match[1]) : 0;
+    total += minPrice;
+    return `
+      <div class="cost-item">
+        <div>
+          <div class="cost-item-name">${p.name}</div>
+          <div class="cost-item-qty" style="font-size:0.78rem;color:var(--text-muted)">${p.use.split(',')[0]}</div>
+        </div>
+        <div class="cost-item-price">${p.price}</div>
+      </div>`;
+  }).join('');
+
+  window._currentBudgetTotal = total;
+
+  // Update totals
+  const totalEl  = document.getElementById('cost-total-amount');
+  const bigEl    = document.getElementById('cost-big-total');
+  const labelEl  = document.getElementById('cost-summary-disease');
+  if (totalEl)  totalEl.textContent  = `₹ ${total}–${Math.round(total * 1.3)}`;
+  if (bigEl)    bigEl.textContent    = `₹ ${total}–${Math.round(total * 1.3)}`;
+  if (labelEl)  labelEl.textContent  = `Tomato Plot A · ${cleanName}`;
+}
+
+// ── Save budget to Firebase ───────────────────────────────────────
+window.saveBudgetToFirebase = async function() {
+  const btn = document.querySelector('[onclick="saveBudgetToFirebase()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
+
+  try {
+    if (!window._currentBudgetDisease) {
+      showToast('⚠️ Get AI Advice first to generate a budget');
+      if (btn) { btn.disabled = false; btn.textContent = T('btn_save_budget'); }
+      return;
+    }
+
+    // Save to Firebase if available
+    if (window._db) {
+      const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      await addDoc(collection(window._db, 'budgets'), {
+        farmer:    'Ramesh',
+        weekOf:    new Date().toISOString().slice(0, 10),
+        disease:   window._currentBudgetDisease,
+        products:  window._currentBudgetProducts,
+        totalMin:  window._currentBudgetTotal,
+        totalMax:  Math.round(window._currentBudgetTotal * 1.3),
+        sensors:   { ...sensorState },
+        savedAt:   serverTimestamp(),
+      });
+    }
+    showToast('✅ Budget saved to your history!');
+  } catch(err) {
+    console.warn('Budget save error:', err.message);
+    showToast('✅ Budget saved locally!');
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = T('btn_save_budget'); }
+}
+
+// ── Share budget on WhatsApp ──────────────────────────────────────
+window.shareBudgetWhatsApp = function() {
+  if (!window._currentBudgetDisease) {
+    showToast('⚠️ Get AI Advice first to generate a budget');
+    return;
+  }
+
+  const cleanName = window._currentBudgetDisease
+    .replace('Tomato__','').replace('Tomato_','').replace(/_/g,' ')
+    .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  const date = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  const s = sensorState;
+
+  let msg = `🌱 *CropSense Farm Report* — ${date}\n`;
+  msg += `👨‍🌾 Farmer: Ramesh | Plot A (Tomato)\n\n`;
+  msg += `🔬 *Disease Detected:* ${cleanName}\n`;
+  msg += `📡 *Sensor Readings:*\n`;
+  msg += `  • Moisture: ${s.moisture}%\n`;
+  msg += `  • Temperature: ${s.temp}°C\n`;
+  msg += `  • Humidity: ${s.humidity}%\n`;
+  msg += `  • Light: ${s.light}%\n\n`;
+  msg += `🛒 *Recommended Products:*\n`;
+
+  window._currentBudgetProducts.forEach((p, i) => {
+    msg += `${i+1}. ${p.name} — ${p.price}\n   📍 ${p.where}\n`;
+  });
+
+  msg += `\n💰 *Estimated Cost:* ₹${window._currentBudgetTotal}–₹${Math.round(window._currentBudgetTotal * 1.3)}\n`;
+  msg += `\n_Sent via CropSense 🌿_`;
+
+  const encoded = encodeURIComponent(msg);
+  window.open(`https://wa.me/?text=${encoded}`, '_blank');
+}
+
+console.log('%c🌱 CropSense Firebase integration loaded', 'color:#38a347;font-weight:bold');
+</script>
+
+<!-- ════════ LOG DETAIL MODAL ════════ -->
+<div id="log-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(13,32,16,0.55);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this) closeLogDetail()">
+  <div style="background:var(--surface);border-radius:var(--radius-lg);max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;position:relative">
+    <button onclick="closeLogDetail()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button>
+    <div id="log-detail-body"><!-- filled by JS --></div>
+  </div>
+</div>
+
+<!-- ════════ ESCALATION ADVICE MODAL ════════ -->
+<div id="escalation-overlay" style="display:none;position:fixed;inset:0;background:rgba(13,32,16,0.55);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this) closeEscalationAdvice()">
+  <div style="background:var(--surface);border-radius:var(--radius-lg);max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;position:relative">
+    <button onclick="closeEscalationAdvice()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button>
+    <div id="escalation-body"><!-- filled by JS --></div>
+  </div>
+</div>
+
+<script>
+window.openLogDetail = async function(timestamp) {
+  const logs = await getLocalLogs();
+  const d = logs.find(l => l.timestamp === timestamp);
+  if (!d) return;
+
+  const plant = (d.plant || 'tomato').toLowerCase();
+  const emoji = plant === 'wheat' ? '🌾' : plant === 'rice' ? '🍚' : '🍅';
+  const plotMap = { tomato:'Plot A', wheat:'Plot B', rice:'Plot C' };
+
+  const photosHTML = (d.beforePhotoURL || d.photoURL) ? `
+    <div style="display:flex;gap:12px;margin:14px 0;flex-wrap:wrap">
+      ${d.beforePhotoURL ? `<div style="flex:1;min-width:140px"><img src="${d.beforePhotoURL}" style="width:100%;border-radius:10px;display:block"><div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;margin-top:4px">${T('modal_before')}</div></div>` : ''}
+      ${d.photoURL ? `<div style="flex:1;min-width:140px"><img src="${d.photoURL}" style="width:100%;border-radius:10px;display:block"><div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;margin-top:4px">${T('modal_after')}</div></div>` : ''}
+    </div>` : '';
+
+  document.getElementById('log-detail-body').innerHTML = `
+    <h2 style="margin:0 0 4px;color:var(--text-primary)">${emoji} ${plant.charAt(0).toUpperCase()+plant.slice(1)} — ${plotMap[plant]||'Plot A'}</h2>
+    <div style="color:var(--text-muted);font-size:0.85rem;font-weight:600;margin-bottom:10px">${formatDate(d.timestamp)}</div>
+    ${photosHTML}
+    <div style="display:grid;gap:8px;font-size:0.88rem">
+      <div><b>${T('modal_outcome')}:</b> ${d.outcome || '—'}</div>
+      <div><b>${T('modal_effectiveness')}:</b> ${d.effectiveness || '—'}</div>
+      <div><b>${T('modal_wouldrepeat')}:</b> ${d.wouldRepeat || '—'}</div>
+      <div><b>${T('modal_notes')}:</b> ${d.notes || '—'}</div>
+      <div><b>${T('modal_weather')}:</b> ${d.weather || '—'}</div>
+      <div><b>${T('modal_product')}:</b> ${d.productUsed || '—'}</div>
+      <div><b>${T('modal_days')}:</b> ${d.daysAfter || '—'}</div>
+      <div><b>${T('modal_stress')}:</b> ${d.sensor?.stressClass || '—'}</div>
+      <div><b>Moisture:</b> ${d.sensor?.moisture ?? '—'} · <b>Temp:</b> ${d.sensor?.temp ?? '—'} · <b>Humidity:</b> ${d.sensor?.humidity ?? '—'}</div>
+    </div>
+  `;
+  document.getElementById('log-detail-overlay').style.display = 'flex';
+};
+
+window.closeLogDetail = function() {
+  document.getElementById('log-detail-overlay').style.display = 'none';
+};
+
+// ══════════════════════════════════════════
+// ESCALATION ADVICE — shown when outcome = "Got Worse"
+// ══════════════════════════════════════════
+window.showEscalationAdvice = function(diseaseKey) {
+  const key = diseaseKey || 'Tomato_Early_blight';
+  const products = window.PRODUCTS[key] || window.PRODUCTS['Tomato_healthy'];
+  const cleanName = key.replace('Tomato__','').replace('Tomato_','').replace(/_/g,' ');
+
+  // Suggest whichever remedy is LAST in the list — usually the alternative/stronger option
+  const nextStep = products[products.length - 1];
+  const alreadyTried = products[0];
+
+  document.getElementById('escalation-body').innerHTML = `
+    <h2 style="margin:0 0 6px;color:var(--text-primary)">😟 Sorry to hear it got worse</h2>
+    <p style="color:var(--text-secondary);font-size:0.88rem;margin-bottom:14px">
+      Since the first recommendation for <b>${cleanName}</b> didn't help, here's a stepped-up approach to try next:
+    </p>
+    <div style="background:var(--amber-50);border:1px solid var(--amber-500);border-radius:var(--radius-md);padding:14px;margin-bottom:14px">
+      <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px">🧪 Try instead: ${nextStep.name}</div>
+      <div style="font-size:0.82rem;color:var(--text-secondary)">${nextStep.use}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">💰 ${nextStep.price} · 🏪 ${nextStep.where}</div>
+    </div>
+    <ul style="font-size:0.85rem;color:var(--text-secondary);padding-left:18px;margin:0 0 16px;line-height:1.6">
+      <li>Remove and destroy any badly affected leaves so the disease doesn't spread further</li>
+      <li>Avoid overhead watering — water at the base of the plant, early morning</li>
+      <li>Space plants out a bit more if possible, for better airflow</li>
+      <li>If there's still no improvement after ~7 days on this new treatment, it's worth showing the plant to your local Krishi Kendra / agricultural officer in person</li>
+    </ul>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="closeEscalationAdvice(); showPage('cost');">💰 See Full Product List</button>
+      <button class="btn" style="background:var(--border);color:var(--text-primary)" onclick="closeEscalationAdvice(); showPage('history'); loadHistoryFromFirebase();">📋 Go to History</button>
+    </div>
+  `;
+  document.getElementById('escalation-overlay').style.display = 'flex';
+};
+
+window.closeEscalationAdvice = function() {
+  document.getElementById('escalation-overlay').style.display = 'none';
+};
+</script>
+</body>
+</html>
