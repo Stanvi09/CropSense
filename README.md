@@ -36,7 +36,7 @@ Meet *Ramesh*, the farmer the dashboard is designed around. He opens CropSense a
 ```mermaid
 flowchart LR
     subgraph Field
-      S["ESP32 sensor node<br/>moisture · temp · humidity · light<br/>+ stress class"]
+      S["ESP32 sensor node<br/>moisture, temp, humidity, light<br/>+ stress class"]
     end
     S --> R[("Firebase<br/>Realtime DB")]
     R -->|"live readings"| UI["CropSense dashboard<br/>(single-page web app)"]
